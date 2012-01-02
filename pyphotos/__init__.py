@@ -24,6 +24,14 @@ def main(global_config, **settings):
     config.add_view('pyphotos.views.my_view',
                     renderer='pyphotos:templates/index.mako', route_name="index")
                     
+                    
+    config.add_route("listalbum", "/album/{name}/list")
+    config.add_view("pyphotos.views.listalbum", route_name="listalbum", renderer="pyphotos:templates/list.mako")
+    
+    config.add_route("addphotoform", "/album/{name}/addphoto")
+    config.add_view("pyphotos.views.addphotoform", route_name="addphotoform", renderer="pyphotos:templates/addphoto.mako")
+    
+                    
     config.add_static_view('static', 'pyphotos:static', cache_max_age=3600)
     return config.make_wsgi_app()
 
