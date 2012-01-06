@@ -2,5 +2,5 @@
 
 List of albums:
 %for a in albums:
-    <a href="/album/${a['title']}"> ${a['title']} </a> <br />    
+    <a href="/album/${a['title']}/list"> ${a['title']} </a> <br />    
 %endfor
