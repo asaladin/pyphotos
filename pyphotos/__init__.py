@@ -31,6 +31,10 @@ def main(global_config, **settings):
     config.add_route("addphotoform", "/album/{name}/addphoto")
     config.add_view("pyphotos.views.addphotoform", route_name="addphotoform", renderer="pyphotos:templates/addphoto.mako")
     
+    config.add_route("view_thumbnail", "/thumbnail")
+    config.add_view("pyphotos.views.thumbnail", route_name="view_thumbnail")
+    
+    
                     
     config.add_static_view('static', 'pyphotos:static', cache_max_age=3600)
     return config.make_wsgi_app()

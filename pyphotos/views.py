@@ -1,4 +1,6 @@
 from pyramid.httpexceptions import HTTPFound
+from pyramid.response import Response
+
 
 import boto
 import time
@@ -17,6 +19,12 @@ def listalbum(request):
     return {'albumname': albumname, 'photos': photos}
 
 
+
+def thumbnail(request):
+    fid = request.GET['filename']
+    fid2 = request.db.fs.files.find_one({'filename':fid})['_id']
+    fich = request.fs.get(fid2)
+    return Response(fich.read(),content_type="image/jpeg")
 
     
 def addphotoform(request):
