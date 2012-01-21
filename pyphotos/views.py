@@ -7,14 +7,25 @@ import time
 import Image
 from io import BytesIO
 
+
+
 def my_view(request):
     albums = request.db.albums.find({'visible': True})
     return {'project':'pyphotos', 'albums': albums}
 
 def listalbum(request):
-    albumname = request.matchdict['name']
     
+    albumname = request.matchdict['name']
     photos = request.db.photos.find({'album': albumname})
+    
+    s3 = boto.connect_s3()
+    bucket=s3.get_bucket("asphotos")
+    
+    photos=list(photos)
+    
+    for p in photos:
+        p['url'] = s3.generate_url(3600 , "GET" ,'asphotos','%s/%s'%(albumname,p['filename']) )
+
     
     return {'albumname': albumname, 'photos': photos}
 
@@ -43,7 +54,7 @@ def addphotoform(request):
         key.set_contents_from_file(inputfile)
         
         inputfile.seek(0)
-        size = 128, 128
+        size = 300, 300
         im = Image.open(inputfile)
         im.thumbnail(size, Image.ANTIALIAS)
         

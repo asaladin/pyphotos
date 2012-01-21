@@ -5,5 +5,7 @@
 liste des photos de l'album ${albumname}: <br />
 
 %for p in photos:
-    ${p['filename']} <br />    
+<a href="${p['url']}"> 
+    <img src="/thumbnail?filename=${p['filename']}" />  ${p['filename']} 
+</a>  <br />    
 %endfor

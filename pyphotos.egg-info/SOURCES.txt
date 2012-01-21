@@ -26,4 +26,8 @@ pyphotos/static/pylons.css
 pyphotos/static/pyramid-small.png
 pyphotos/static/pyramid.png
 pyphotos/static/transparent.gif
+pyphotos/templates/addphoto.mako
+pyphotos/templates/base.mako
+pyphotos/templates/index.mako
+pyphotos/templates/list.mako
 pyphotos/templates/mytemplate.pt
