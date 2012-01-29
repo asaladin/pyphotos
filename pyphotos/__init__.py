@@ -3,6 +3,8 @@ from pyphotos.resources import Root
 from pyramid.events import subscriber
 from pyramid.events import NewRequest
 
+import pyramid_beaker
+
 
 from gridfs import GridFS
 import pymongo
@@ -13,6 +15,7 @@ def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
     config = Configurator(root_factory=Root, settings=settings)
+    config.include(pyramid_beaker)
     
     db_uri = settings['db_uri']
     conn = pymongo.Connection(db_uri)

@@ -17,6 +17,15 @@ def my_view(request):
 
 def listalbum(request):
     
+    session = request.session
+    
+    try:
+       username = request.session["username"]
+    except: 
+       username = "anonymous"
+       session['username'] = username
+    
+    
     albumname = request.matchdict['name']
     photos = request.db.photos.find({'album': albumname})
     
@@ -29,7 +38,7 @@ def listalbum(request):
         p['url'] = s3.generate_url(3600 , "GET" ,'asphotos','%s/%s'%(albumname,p['filename']) )
 
     
-    return {'albumname': albumname, 'photos': photos}
+    return {'albumname': albumname, 'photos': photos, 'username': username}
 
 
 
