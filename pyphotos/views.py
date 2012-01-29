@@ -1,6 +1,8 @@
 from pyramid.httpexceptions import HTTPFound
 from pyramid.response import Response
 
+from velruse.store.mongodb_store import MongoDBStore
+
 
 import boto
 import time
@@ -73,5 +75,21 @@ def addphotoform(request):
         return HTTPFound("/album/%s/addphoto"%albumname)
         
     return {}
+
+
+def login(request):
+    termination = request.route_url("velruse_endpoint")
     
+    return {"termination":termination}
+
+def endpoint(request):
+    
+    if 'token' in request.params:
+        token = request.params['token']
+    
+        store = MongoDBStore(db="pyphotos")
+        values = store.retrieve(token)
+        print values
+    
+    return Response("hello")
     

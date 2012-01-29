@@ -34,6 +34,11 @@ def main(global_config, **settings):
     config.add_route("view_thumbnail", "/thumbnail")
     config.add_view("pyphotos.views.thumbnail", route_name="view_thumbnail")
     
+    config.add_route("login", "/login")
+    config.add_view("pyphotos.views.login", route_name="login", renderer="pyphotos:templates/login.mako")
+    
+    config.add_route("velruse_endpoint", "/velruse_endpoint")
+    config.add_view("pyphotos.views.endpoint", route_name="velruse_endpoint")
     
                     
     config.add_static_view('static', 'pyphotos:static', cache_max_age=3600)
