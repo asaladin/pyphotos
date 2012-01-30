@@ -34,8 +34,12 @@ def listalbum(request):
 
 def newalbum(request):
     if 'albumname' in request.POST:
-        albumname = request.POST
-        request.db.albums.insert()
+        albumname = request.POST['albumname']
+        visible = False
+        if 'visible' in request.POST:
+            visible = True
+        request.db.albums.insert({'title': albumname, 'visible':visible})
+        return HTTPFound(location="/")
 
     
     return {} 
