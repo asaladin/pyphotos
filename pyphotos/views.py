@@ -32,6 +32,17 @@ def listalbum(request):
     return {'albumname': albumname, 'photos': photos}
 
 
+def newalbum(request):
+    if 'albumname' in request.POST:
+        albumname = request.POST
+        request.db.albums.insert()
+
+    
+    return {} 
+
+
+
+
 
 def thumbnail(request):
     fid = request.GET['filename']
