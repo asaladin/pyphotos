@@ -42,7 +42,9 @@ def main(global_config, **settings):
     
     config.add_route("velruse_endpoint", "/velruse_endpoint")
     config.add_view("pyphotos.views.endpoint", route_name="velruse_endpoint")
-    
+   
+    config.add_route("newalbum", "/newalbum")
+    config.add_view("pyphotos.views.newalbum", route_name="newalbum", renderer="pyphotos:templates/newalbum.mako") 
                     
     config.add_static_view('static', 'pyphotos:static', cache_max_age=3600)
     return config.make_wsgi_app()

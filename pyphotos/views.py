@@ -41,6 +41,21 @@ def listalbum(request):
     return {'albumname': albumname, 'photos': photos, 'username': username}
 
 
+def newalbum(request):
+    if 'albumname' in request.POST:
+        albumname = request.POST['albumname']
+        visible = False
+        if 'visible' in request.POST:
+            visible = True
+        request.db.albums.insert({'title': albumname, 'visible':visible})
+        return HTTPFound(location="/")
+
+    
+    return {} 
+
+
+
+
 
 def thumbnail(request):
     fid = request.GET['filename']
