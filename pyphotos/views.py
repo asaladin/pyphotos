@@ -16,7 +16,6 @@ def my_view(request):
     return {'project':'pyphotos', 'albums': albums}
 
 def listalbum(request):
-    
     session = request.session
     
     try:

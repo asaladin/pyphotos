@@ -3,6 +3,10 @@ from pyphotos.resources import Root
 from pyramid.events import subscriber
 from pyramid.events import NewRequest
 
+from pyramid.authentication import AuthTktAuthenticationPolicy
+from pyramid.authorization import ACLAuthorizationPolicy
+
+
 import pyramid_beaker
 
 
@@ -17,6 +21,14 @@ def main(global_config, **settings):
     config = Configurator(root_factory=Root, settings=settings)
     config.include(pyramid_beaker)
     
+    authentication_policy = AuthTktAuthenticationPolicy('seekrit')
+    authorization_policy = ACLAuthorizationPolicy()
+    
+    config.set_authentication_policy(authentication_policy)
+    config.set_authorization_policy(authorization_policy)
+    
+    
+    
     db_uri = settings['db_uri']
     conn = pymongo.Connection(db_uri)
     config.registry.settings['db_conn'] = conn
@@ -29,7 +41,7 @@ def main(global_config, **settings):
                     
                     
     config.add_route("listalbum", "/album/{name}/list")
-    config.add_view("pyphotos.views.listalbum", route_name="listalbum", renderer="pyphotos:templates/list.mako")
+    config.add_view("pyphotos.views.listalbum", route_name="listalbum", renderer="pyphotos:templates/list.mako", permission='view' )
     
     config.add_route("addphotoform", "/album/{name}/addphoto")
     config.add_view("pyphotos.views.addphotoform", route_name="addphotoform", renderer="pyphotos:templates/addphoto.mako")
