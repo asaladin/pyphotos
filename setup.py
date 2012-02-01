@@ -6,7 +6,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.txt')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
-requires = ['pyramid', 'pyramid_debugtoolbar', 'boto', 'pyramid_beaker']
+requires = ['pyramid', 'pyramid_debugtoolbar', 'boto', 'pyramid_beaker', 'velruse', 'pymongo', 'PIL']
 
 setup(name='pyphotos',
       version='0.0',
