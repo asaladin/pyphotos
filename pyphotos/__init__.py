@@ -1,10 +1,12 @@
 from pyramid.config import Configurator
 from pyphotos.resources import Root
 from pyramid.events import subscriber
-from pyramid.events import NewRequest
+from pyramid.events import NewRequest, BeforeRender, NewResponse
 
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
+
+from  pyramid.security import authenticated_userid
 
 
 import pyramid_beaker
@@ -12,6 +14,10 @@ import pyramid_beaker
 
 from gridfs import GridFS
 import pymongo
+
+def ingroup(userid, request):
+    print "######ingroup called"
+    return ['toto']
 
 
 
@@ -21,7 +27,7 @@ def main(global_config, **settings):
     config = Configurator(root_factory=Root, settings=settings)
     config.include(pyramid_beaker)
     
-    authentication_policy = AuthTktAuthenticationPolicy('seekrit')
+    authentication_policy = AuthTktAuthenticationPolicy('seekrit', callback=ingroup)
     authorization_policy = ACLAuthorizationPolicy()
     
     config.set_authentication_policy(authentication_policy)
@@ -33,6 +39,7 @@ def main(global_config, **settings):
     conn = pymongo.Connection(db_uri)
     config.registry.settings['db_conn'] = conn
     config.add_subscriber(add_mongo_db, NewRequest)
+    #config.add_subscriber(before_render, BeforeRender)
     
     
     config.add_route("index", "/")
@@ -52,6 +59,10 @@ def main(global_config, **settings):
     config.add_route("login", "/login")
     config.add_view("pyphotos.views.login", route_name="login", renderer="pyphotos:templates/login.mako")
     
+    config.add_route("logout", "/logout")
+    config.add_view("pyphotos.views.logout", route_name="logout")
+    
+    
     config.add_route("velruse_endpoint", "/velruse_endpoint")
     config.add_view("pyphotos.views.endpoint", route_name="velruse_endpoint")
    
@@ -66,3 +77,7 @@ def add_mongo_db(event):
     db = settings['db_conn'][settings['db_name']]
     event.request.db = db
     event.request.fs = GridFS(db)
+
+
+#def before_render(event):
+    #event["username"] = authenticated_userid(event.request)

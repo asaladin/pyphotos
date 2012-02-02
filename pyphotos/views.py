@@ -1,5 +1,7 @@
 from pyramid.httpexceptions import HTTPFound
 from pyramid.response import Response
+from pyramid.security import remember, forget
+
 
 from velruse.store.mongodb_store import MongoDBStore
 
@@ -7,8 +9,9 @@ from velruse.store.mongodb_store import MongoDBStore
 import boto
 import time
 import Image
-from io import BytesIO
 
+
+from io import BytesIO
 
 
 def my_view(request):
@@ -100,11 +103,30 @@ def addphotoform(request):
     return {}
 
 
+#page showing login options
 def login(request):
+    if 'login' in request.POST:
+        login = request.POST["login"]
+        password = request.POST["password"]
+        
+        #TODO: real security check...
+        if login == password:
+            headers = remember(request, login)
+            return HTTPFound(location='/', headers=headers)
+        
+        
     termination = request.route_url("velruse_endpoint")
     
     return {"termination":termination}
+    
 
+#simply logout
+def logout(request):
+    headers = forget(request)
+    return HTTPFound(location='/', headers=headers)
+
+
+#page called after velruse authentication
 def endpoint(request):
     
     if 'token' in request.params:
@@ -112,6 +134,12 @@ def endpoint(request):
     
         store = MongoDBStore(db="pyphotos")
         values = store.retrieve(token)
+        
+        if values['status'] == 'ok':
+            headers = remember(request, 'adrien')
+            return HTTPFound(location='/', headers=headers)
+            
+        
         print values
     
     return Response("hello")
