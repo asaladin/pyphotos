@@ -16,7 +16,6 @@ from gridfs import GridFS
 import pymongo
 
 def ingroup(userid, request):
-    print "######ingroup called"
     return ['toto']
 
 
