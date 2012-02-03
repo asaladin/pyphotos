@@ -123,6 +123,7 @@ def login(request):
 #simply logout
 def logout(request):
     headers = forget(request)
+    request.session.flash("You have logged out")
     return HTTPFound(location='/', headers=headers)
 
 
@@ -136,7 +137,10 @@ def endpoint(request):
         values = store.retrieve(token)
         
         if values['status'] == 'ok':
-            headers = remember(request, 'adrien')
+            username = 'adrien'  #TODO: determine real username
+            headers = remember(request, username)
+            request.session.flash("welcome %s"%username)
+            
             return HTTPFound(location='/', headers=headers)
             
         

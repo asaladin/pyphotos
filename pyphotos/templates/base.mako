@@ -4,6 +4,13 @@
 
 <body>
 
+<div class="flash"> 
+<% flash = request.session.pop_flash()   %>
+  %for message in flash:
+    ${message} <br />
+  %endfor
+</div>
+
 <div class="menu">
 
 Hello ${username}
