@@ -39,7 +39,7 @@ def main(global_config, **settings):
     conn = pymongo.Connection(db_uri)
     config.registry.settings['db_conn'] = conn
     config.add_subscriber(add_mongo_db, NewRequest)
-    #config.add_subscriber(before_render, BeforeRender)
+    config.add_subscriber(before_render, BeforeRender)
     
     
     config.add_route("index", "/")
@@ -79,5 +79,5 @@ def add_mongo_db(event):
     event.request.fs = GridFS(db)
 
 
-#def before_render(event):
-    #event["username"] = authenticated_userid(event.request)
+def before_render(event):
+    event["username"] = authenticated_userid(event['request'])

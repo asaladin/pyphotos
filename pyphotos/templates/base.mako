@@ -5,6 +5,9 @@
 <body>
 
 <div class="menu">
+
+Hello ${username}
+
 <ul>
 <li><a href="/">main page</a></li>
 <li><a href='/newalbum'>create an album</a></li>
