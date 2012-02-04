@@ -1,5 +1,7 @@
 <html>
 <head>
+<title>Photos</title>
+
 </head>
 
 <body>
