@@ -1,3 +1,6 @@
+
+# encoding:  utf-8
+
 from pyramid.httpexceptions import HTTPFound
 from pyramid.response import Response
 from pyramid.security import remember, forget, authenticated_userid
@@ -9,6 +12,9 @@ from pyramid.view import view_config
 import boto
 import time
 import Image
+
+import hashlib
+import random
 
 
 from io import BytesIO
@@ -23,14 +29,10 @@ def my_view(request):
 def listalbum(request):
     session = request.session
     
-    try:
-       username = request.session["username"]
-    except: 
-       username = "anonymous"
-       session['username'] = username
+    username = authenticated_userid(request)
+   
     
-    
-    albumname = request.matchdict['name']
+    albumname = request.matchdict['albumname']
     photos = request.db.photos.find({'album': albumname})
     
     s3 = boto.connect_s3()
@@ -173,6 +175,33 @@ def endpoint(request):
     
     return Response("hello")
     
-@view_config(route_name="createticket", permission='createticket')
+@view_config(route_name="createticket", renderer='pyphotos:templates/displayticket.mako', permission='createticket')
 def createticket(request):
-    return Response("allowed to create tickets!")
+    username = authenticated_userid(request)
+    albumname = request.matchdict['albumname']
+    token = hashlib.sha512( "%s"%random.randint(1,1e99)).hexdigest()
+    
+    request.db.tickets.insert({'owner':username, 'albumname': albumname, 'token': token } )
+    
+    
+    return {'token': token}
+
+@view_config(route_name="allowview")
+def allowview(request):
+    credential = request.matchdict['credential']
+    
+    try:
+        ticket = request.db.tickets.find_one({'token': credential})
+        albumname = ticket['albumname']
+    except KeyError:    
+        return Response('ce ticket ne vaut rien!')
+        
+    if 'tickets' in request.session:
+        request.session['tickets'][ albumname ] = credential
+    else:    
+        request.session['tickets'] = { albumname: credential }
+        
+    request.session.flash(u"album %s ajouté!"%albumname )
+        
+        
+    return HTTPFound(location='/')
