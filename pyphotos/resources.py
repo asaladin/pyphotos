@@ -24,12 +24,10 @@ class AlbumFactory(object):
         
         album = db.albums.find_one({'title': albumname})
         owner = album['owner']
-        print "debug: owner ", owner
         self.__acl__.append( (Allow, owner, 'createticket'), )
         self.__acl__.append( (Allow, owner, 'view'), )
         
         if 'tickets' in request.session:
-            print "debug: ok il y a des tickets"
             tickets = request.session['tickets']
             try:
                  credential = tickets[albumname]
@@ -39,7 +37,6 @@ class AlbumFactory(object):
                 
             #check credential in the ticket database:
             cred = db.tickets.find_one({'token': credential})
-            print "debug: cred", cred
             if cred['albumname'] == album['title']:
                  print "cred ok"        
                  self.__acl__.append( (Allow, Everyone, 'view'),)

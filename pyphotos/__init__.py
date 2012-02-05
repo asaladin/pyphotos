@@ -16,6 +16,8 @@ from gridfs import GridFS
 import pymongo
 import hashlib
 
+import boto
+
 
 def ingroup(userid, request):
     return [userid]
@@ -40,6 +42,12 @@ def main(global_config, **settings):
     conn = pymongo.Connection(db_uri)
     db = conn[settings['db_name']]
     config.registry.settings['db_conn'] = conn
+    
+    s3 = boto.connect_s3()
+    config.registry.settings['s3'] = s3
+    config.registry.settings['bucket'] = s3.get_bucket("asphotos")
+    
+    
     config.add_subscriber(add_mongo_db, NewRequest)
     config.add_subscriber(before_render, BeforeRender)
     
@@ -97,6 +105,10 @@ def add_mongo_db(event):
     db = settings['db_conn'][settings['db_name']]
     event.request.db = db
     event.request.fs = GridFS(db)
+    
+    event.request.s3 = settings['s3']
+    event.request.bucket = settings['bucket']
+    
 
 
 def before_render(event):

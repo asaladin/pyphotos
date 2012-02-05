@@ -9,7 +9,7 @@ from pyramid.security import remember, forget, authenticated_userid
 from velruse.store.mongodb_store import MongoDBStore
 from pyramid.view import view_config
 
-import boto
+
 import time
 import Image
 
@@ -35,13 +35,12 @@ def listalbum(request):
     albumname = request.matchdict['albumname']
     photos = request.db.photos.find({'album': albumname})
     
-    s3 = boto.connect_s3()
-    bucket=s3.get_bucket("asphotos")
+    
     
     photos=list(photos)
     
     for p in photos:
-        p['url'] = s3.generate_url(3600 , "GET" ,'asphotos','%s/%s'%(albumname,p['filename']) )
+        p['url'] = request.s3.generate_url(3600 , "GET" ,'asphotos','%s/%s'%(albumname,p['filename']) )
 
     
     return {'albumname': albumname, 'photos': photos, 'username': username}
@@ -80,10 +79,8 @@ def addphotoform(request):
         inputfile = request.POST['jpg'].file
         
         print filename
-        
-        s3 = boto.connect_s3()
-        bucket = s3.get_bucket("asphotos")
-        key = bucket.new_key("%s/%s"%(albumname,filename))
+
+        key = request.bucket.new_key("%s/%s"%(albumname,filename))
         key.set_contents_from_file(inputfile)
         
         inputfile.seek(0)
