@@ -79,6 +79,9 @@ def main(global_config, **settings):
    
     config.add_route("newalbum", "/newalbum")
     #config.add_view("pyphotos.views.newalbum", route_name="newalbum", renderer="pyphotos:templates/newalbum.mako", permission="create") 
+    
+    config.add_route("createticket", "/createticket/{albumname}", factory="pyphotos.resources.AlbumFactory")
+    
                     
     config.add_static_view('static', 'pyphotos:static', cache_max_age=3600)
     

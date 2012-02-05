@@ -173,3 +173,6 @@ def endpoint(request):
     
     return Response("hello")
     
+@view_config(route_name="createticket", permission='createticket')
+def createticket(request):
+    return Response("allowed to create tickets!")
