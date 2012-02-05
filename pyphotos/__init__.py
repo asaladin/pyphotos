@@ -18,7 +18,7 @@ import hashlib
 
 
 def ingroup(userid, request):
-    return ['toto']
+    return [userid]
 
 
 
@@ -58,10 +58,10 @@ def main(global_config, **settings):
                     #renderer='pyphotos:templates/index.mako', route_name="index")
                     
                     
-    config.add_route("listalbum", "/album/{name}/list")
+    config.add_route("listalbum", "/album/{albumname}/list", factory="pyphotos.resources.AlbumFactory")
     #config.add_view("pyphotos.views.listalbum", route_name="listalbum", renderer="pyphotos:templates/list.mako", permission='view' )
     
-    config.add_route("addphotoform", "/album/{name}/addphoto")
+    config.add_route("addphotoform", "/album/{albumname}/addphoto")
     #config.add_view("pyphotos.views.addphotoform", route_name="addphotoform", renderer="pyphotos:templates/addphoto.mako")
     
     config.add_route("view_thumbnail", "/thumbnail")
@@ -79,6 +79,11 @@ def main(global_config, **settings):
    
     config.add_route("newalbum", "/newalbum")
     #config.add_view("pyphotos.views.newalbum", route_name="newalbum", renderer="pyphotos:templates/newalbum.mako", permission="create") 
+    
+    config.add_route("createticket", "/createticket/{albumname}", factory="pyphotos.resources.AlbumFactory")
+    
+    config.add_route("allowview", "/allow/{credential}")
+    
                     
     config.add_static_view('static', 'pyphotos:static', cache_max_age=3600)
     
