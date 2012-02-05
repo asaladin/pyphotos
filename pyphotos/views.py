@@ -1,6 +1,6 @@
 from pyramid.httpexceptions import HTTPFound
 from pyramid.response import Response
-from pyramid.security import remember, forget
+from pyramid.security import remember, forget, authenticated_userid
 
 
 from velruse.store.mongodb_store import MongoDBStore
@@ -114,7 +114,8 @@ def login(request):
         password = request.POST["password"]
         
         #TODO: real security check...
-        if login == password:
+        real_passwd = request.db.users.find_one({'login': login})['pwd']
+        if real_passwd == password:
             headers = remember(request, login)
             return HTTPFound(location='/', headers=headers)
         
@@ -143,7 +144,25 @@ def endpoint(request):
         values = store.retrieve(token)
         
         if values['status'] == 'ok':
-            username = 'adrien'  #TODO: determine real username
+            print values
+            identifier = values['profile']['identifier']
+            print identifier
+            
+            try:
+                username = request.db.identifiers.find_one({'id': identifier })['username']
+            except TypeError:
+                 if authenticated_userid(request) is not None:
+                      request.db.identifiers.insert({'id': identifier, 'username': authenticated_userid(request)  })
+                      request.session.flash('welcome back %s'%authenticated_userid(request))
+                      return HTTPFound(location='/')
+                 else:
+                     #no local account, try to create a new one
+                     if request.registry.settings['allownewaccount'] == 'True':
+                         request.session['identifier'] = identifier
+                         return HTTPFound(location='/newaccount')
+                         
+                
+            
             headers = remember(request, username)
             request.session.flash("welcome %s"%username)
             

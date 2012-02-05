@@ -10,10 +10,11 @@ from  pyramid.security import authenticated_userid
 
 
 import pyramid_beaker
-
+import random
 
 from gridfs import GridFS
 import pymongo
+import hashlib
 
 
 def ingroup(userid, request):
@@ -37,9 +38,19 @@ def main(global_config, **settings):
     
     db_uri = settings['db_uri']
     conn = pymongo.Connection(db_uri)
+    db = conn[settings['db_name']]
     config.registry.settings['db_conn'] = conn
     config.add_subscriber(add_mongo_db, NewRequest)
     config.add_subscriber(before_render, BeforeRender)
+    
+    #add root account if none present:
+    if db.users.find({'admin':True}).count() == 0:
+        pwd = hashlib.sha1('%s'%random.randint(1,1e99)).hexdigest()
+        
+        db.users.insert({'login':'root', 'pwd':pwd, 'admin':True })
+        print 'created root account with password ', pwd
+    
+    
     
     
     config.add_route("index", "/")
