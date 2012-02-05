@@ -51,7 +51,7 @@ def newalbum(request):
         visible = False
         if 'visible' in request.POST:
             visible = True
-        request.db.albums.insert({'title': albumname, 'visible':visible})
+        request.db.albums.insert({'title': albumname, 'visible':visible, 'owner': authenticated_userid(request)})
         return HTTPFound(location="/")
 
     
