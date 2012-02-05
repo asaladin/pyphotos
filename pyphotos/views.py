@@ -4,7 +4,7 @@ from pyramid.security import remember, forget
 
 
 from velruse.store.mongodb_store import MongoDBStore
-
+from pyramid.view import view_config
 
 import boto
 import time
@@ -13,11 +13,13 @@ import Image
 
 from io import BytesIO
 
-
+@view_config(renderer='pyphotos:templates/index.mako', route_name="index")
 def my_view(request):
     albums = request.db.albums.find({'visible': True})
     return {'project':'pyphotos', 'albums': albums}
 
+
+@view_config(route_name='listalbum', renderer="pyphotos:templates/list.mako", permission='view')
 def listalbum(request):
     session = request.session
     
@@ -42,7 +44,7 @@ def listalbum(request):
     
     return {'albumname': albumname, 'photos': photos, 'username': username}
 
-
+@view_config(route_name="newalbum", renderer="pyphotos:templates/newalbum.mako", permission="create")
 def newalbum(request):
     if 'albumname' in request.POST:
         albumname = request.POST['albumname']
@@ -58,14 +60,15 @@ def newalbum(request):
 
 
 
-
+@view_config(route_name="view_thumbnail")
 def thumbnail(request):
     fid = request.GET['filename']
     fid2 = request.db.fs.files.find_one({'filename':fid})['_id']
     fich = request.fs.get(fid2)
     return Response(fich.read(),content_type="image/jpeg")
 
-    
+
+@view_config(route_name="addphotoform", renderer="pyphotos:templates/addphoto.mako")
 def addphotoform(request):
     
     albumname = request.matchdict['name']
@@ -104,6 +107,7 @@ def addphotoform(request):
 
 
 #page showing login options
+@view_config(route_name="login", renderer="pyphotos:templates/login.mako")
 def login(request):
     if 'login' in request.POST:
         login = request.POST["login"]
@@ -121,6 +125,7 @@ def login(request):
     
 
 #simply logout
+@view_config(route_name='logout')
 def logout(request):
     headers = forget(request)
     request.session.flash("You have logged out")
@@ -128,6 +133,7 @@ def logout(request):
 
 
 #page called after velruse authentication
+@view_config(route_name="velruse_endpoint")
 def endpoint(request):
     
     if 'token' in request.params:
