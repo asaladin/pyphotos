@@ -72,7 +72,7 @@ def thumbnail(request):
 @view_config(route_name="addphotoform", renderer="pyphotos:templates/addphoto.mako")
 def addphotoform(request):
     
-    albumname = request.matchdict['name']
+    albumname = request.matchdict['albumname']
     
     if request.method == "POST":
         filename = request.POST['jpg'].filename
