@@ -1,8 +1,12 @@
 <%inherit file="base.mako" />
 
-<a href="/login"> login </a>  <br />
-<a href="/logout"> logout </a> <br />
-List of albums:
+<div class="span4">
+<h3>List of albums </h3>
+<ul>
 %for a in albums:
-    <a href="/album/${a['title']}/list">${a['title']}</a> <br />    
+    <li><a href="/album/${a['title']}/list">${a['title']}</a></li>
 %endfor
+</ul>
+
+</div>
+
