@@ -90,12 +90,12 @@
 
 
 
-         <div class="row-fluid">
-             <div class='span9'>
-                  ${next.body()}
+             <div class="row-fluid">
+                 <div class='span9'>
+                     ${next.body()}
+                 </div>
              </div>
          </div>
-
 
 
 
