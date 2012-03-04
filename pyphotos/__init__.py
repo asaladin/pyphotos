@@ -15,6 +15,7 @@ import random
 from gridfs import GridFS
 import pymongo
 import hashlib
+import lib
 
 import boto
 
@@ -91,7 +92,7 @@ def main(global_config, **settings):
     config.add_route("createticket", "/createticket/{albumname}", factory="pyphotos.resources.AlbumFactory")
     
     config.add_route("allowview", "/allow/{credential}")
-    
+    config.add_route('myalbums', '/myalbums')
                     
     config.add_static_view('static', 'pyphotos:static', cache_max_age=3600)
     
@@ -109,7 +110,9 @@ def add_mongo_db(event):
     event.request.s3 = settings['s3']
     event.request.bucket = settings['bucket']
     
-
+    
 
 def before_render(event):
     event["username"] = authenticated_userid(event['request'])
+    event["myalbums"] = lib.myalbums(event['request'])
+    

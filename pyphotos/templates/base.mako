@@ -2,6 +2,17 @@
 <head>
 <title>Photos</title>
 
+<style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+    </style>
+
+
 
 <link href="/static/bootstrap.css" rel="stylesheet">
 <script src="static/bootstrap.js"></script>
@@ -47,18 +58,10 @@
               <li class="nav-header">Sidebar</li>
 <!--              <li class="active"><a href="#">Link</a></li>-->
               <li><a href='/newalbum'>Create an album</a></li>
-              <li><a href="#">Link</a></li>
-              <li class="nav-header">Sidebar</li>
-              <li><a href="#">Link</a></li>
-              <li><a href="#">Link</a></li>
-              <li><a href="#">Link</a></li>
-              <li><a href="#">Link</a></li>
-              <li><a href="#">Link</a></li>
-              <li><a href="#">Link</a></li>
-              <li class="nav-header">Sidebar</li>
-              <li><a href="#">Link</a></li>
-              <li><a href="#">Link</a></li>
-              <li><a href="#">Link</a></li>
+              <li class="nav-header">Your albums</li>
+              %for a in myalbums[:5]:
+                 <li><a href="/album/${a['title']}/list">${a['title']}</a></li>
+              %endfor
             </ul>
           </div><!--/.well -->
         </div><!--/span-->
@@ -73,6 +76,7 @@
             <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
             <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
           </div>
+
 
 
     <div class="flash"> 

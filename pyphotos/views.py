@@ -15,14 +15,14 @@ import Image
 
 import hashlib
 import random
-
+import lib
 
 from io import BytesIO
 
 @view_config(renderer='pyphotos:templates/index.mako', route_name="index")
 def my_view(request):
     albums = request.db.albums.find({'visible': True})
-    return {'project':'pyphotos', 'albums': albums}
+    return {'project':'pyphotos', 'albums': albums, 'myalbums': lib.myalbums(request) }
 
 
 @view_config(route_name='listalbum', renderer="pyphotos:templates/list.mako", permission='view')
@@ -202,3 +202,4 @@ def allowview(request):
         
         
     return HTTPFound(location='/')
+    
