@@ -176,7 +176,7 @@ def endpoint(request):
 def createticket(request):
     username = authenticated_userid(request)
     albumname = request.matchdict['albumname']
-    token = hashlib.sha512( "%s"%random.randint(1,1e99)).hexdigest()
+    token = hashlib.sha1( "%s"%random.randint(1,1e99)).hexdigest()
     
     request.db.tickets.insert({'owner':username, 'albumname': albumname, 'token': token } )
     
