@@ -22,7 +22,7 @@ def grouper(n, iterable, fillvalue=None):
 <div class="row-fluid">
     %for photo in group_photo:
     <div class="span4">
-       <a href="${photo['url']}"> 
+       <a href="${request.route_url('fullsize', albumname=albumname,  filename=photo['filename'])}"> 
           <img src="/thumbnail?filename=${photo['filename']}" />  ${photo['filename']} 
        </a> 
     </div><!--/span-->

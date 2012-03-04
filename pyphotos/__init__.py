@@ -93,6 +93,8 @@ def main(global_config, **settings):
     
     config.add_route("allowview", "/allow/{credential}")
     config.add_route('myalbums', '/myalbums')
+    config.add_route('fullsize', '/fs/{albumname}/{filename}')
+    
                     
     config.add_static_view('static', 'pyphotos:static', cache_max_age=3600)
     

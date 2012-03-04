@@ -203,3 +203,10 @@ def allowview(request):
         
     return HTTPFound(location='/')
     
+@view_config(route_name='fullsize', renderer='pyphotos:templates/fullsize.mako')
+def fullsize_view(request):
+    albumname = request.matchdict['albumname']
+    filename = request.matchdict['filename']
+    url = request.s3.generate_url(3600 , "GET" ,'asphotos','%s/%s'%(albumname,filename) )
+    return {'url': url}
+    
