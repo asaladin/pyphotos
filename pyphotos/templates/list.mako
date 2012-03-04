@@ -18,20 +18,15 @@ def grouper(n, iterable, fillvalue=None):
 %>
 
 
-%for photo1,photo2 in grouper(2 , photos):
+%for group_photo in grouper(2 , photos):
 <div class="row-fluid">
+    %for photo in group_photo:
     <div class="span4">
-       <a href="${photo1['url']}"> 
-          <img src="/thumbnail?filename=${photo1['filename']}" />  ${photo1['filename']} 
+       <a href="${photo['url']}"> 
+          <img src="/thumbnail?filename=${photo['filename']}" />  ${photo['filename']} 
        </a> 
     </div><!--/span-->
-
-
-    <div class="span4">
-       <a href="${photo2['url']}"> 
-          <img src="/thumbnail?filename=${photo2['filename']}" />  ${photo2['filename']} 
-       </a> 
-    </div><!--/span-->
+    %endfor
 
 </div><!--/row-->
 %endfor
