@@ -1,6 +1,6 @@
 <%inherit file="base.mako" />
 
-<div class="span4">
+
 <h3>List of albums </h3>
 <ul>
 %for a in albums:
@@ -8,5 +8,5 @@
 %endfor
 </ul>
 
-</div>
+
 

@@ -51,47 +51,52 @@
 
 
 <div class="container-fluid">
-      <div class="row-fluid">
-        <div class="span2">
-          <div class="well sidebar-nav">
-            <ul class="nav nav-list">
-              <li class="nav-header">Sidebar</li>
-<!--              <li class="active"><a href="#">Link</a></li>-->
-              <li><a href='/newalbum'>Create an album</a></li>
-              <li class="nav-header">Your albums</li>
-              %for a in myalbums[:5]:
-                 <li><a href="/album/${a['title']}/list">${a['title']}</a></li>
-              %endfor
-            </ul>
-          </div><!--/.well -->
-        </div><!--/span-->
 
-
-
-
-
-      <div class="span9">
-          <div class="hero-unit">
-            <h1>Hello, world!</h1>
-            <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
-            <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
-          </div>
-
-
-
-    <div class="flash"> 
+     <div class="flash"> 
         <% flash = request.session.pop_flash()   %>
         %for message in flash:
              ${message} <br />
         %endfor
      </div>
 
+     <div class="row-fluid">
 
-      <div class="body">
-          ${next.body()}
-       </div>
+         <div class="span2">
+             <div class="well sidebar-nav">
+                 <ul class="nav nav-list">
+                     <li class="nav-header">Sidebar</li>
+    <!--             <li class="active"><a href="#">Link</a></li>-->
+                     <li><a href='/newalbum'>Create an album</a></li>
+                     <li class="nav-header">Your albums</li>
+                     %for a in myalbums[:5]:
+                         <li><a href="/album/${a['title']}/list">${a['title']}</a></li>
+                     %endfor
+                 </ul>
+             </div><!--/.well -->
+         </div><!--/span-->
 
-</div>
+
+
+
+
+         <div class="span10">
+             <div class="hero-unit">
+                <h1>Hello, world!</h1>
+                <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+                <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+             </div>
+         
+
+
+
+
+         <div class="row-fluid">
+             <div class='span9'>
+                  ${next.body()}
+             </div>
+         </div>
+
+
 
 
 </body>
