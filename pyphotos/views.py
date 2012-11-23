@@ -22,6 +22,12 @@ from io import BytesIO
 @view_config(renderer='pyphotos:templates/index.mako', route_name="index")
 def my_view(request):
     albums = request.db.albums.find({'visible': True})
+    print dir(User)
+    print type(User)
+
+    print list(User.m.find())
+
+
     return {'project':'pyphotos', 'albums': albums, 'myalbums': lib.myalbums(request) }
 
 

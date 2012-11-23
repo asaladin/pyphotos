@@ -9,7 +9,7 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 requires = ['pyramid', 
             'pyramid_debugtoolbar', 
             'boto', 
-            'ming<=0.3.1',
+            'ming',
             'pyramid_beaker', 'velruse', 'pymongo', 'PIL', 'waitress']
 
 setup(name='pyphotos',
