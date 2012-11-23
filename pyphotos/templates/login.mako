@@ -7,9 +7,8 @@
       <button action="submit" name="submit"> login! </button>
    </form>
 
-   <form action="/velruse/openid/auth" method="post">
+   <form action="/login/openid" method="post">
          <input type="hidden" name="popup_mode" value="popup" />
-         <input type="hidden" name="end_point" value="${termination}" />
          <input type="hidden" name="openid_identifier" value="https://www.google.com/accounts/o8/id" />
          <input type="submit" value="Login with Google" />
    </form> 

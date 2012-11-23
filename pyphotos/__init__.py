@@ -30,6 +30,11 @@ def main(global_config, **settings):
     """
     config = Configurator(root_factory=Root, settings=settings)
     config.include(pyramid_beaker)
+
+    config.include("velruse.providers.openid")
+    config.include('velruse.providers.google_oauth2')
+    config.add_openid_login()
+
     
     authentication_policy = AuthTktAuthenticationPolicy('seekrit', callback=ingroup)
     authorization_policy = ACLAuthorizationPolicy()
@@ -83,7 +88,6 @@ def main(global_config, **settings):
     #config.add_view("pyphotos.views.logout", route_name="logout")
     
     
-    config.add_route("velruse_endpoint", "/velruse_endpoint")
     #config.add_view("pyphotos.views.endpoint", route_name="velruse_endpoint")
    
     config.add_route("newalbum", "/newalbum")

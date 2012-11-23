@@ -1,6 +1,7 @@
 pyramid
 pyramid_debugtoolbar
 boto
+ming<=0.3.1
 pyramid_beaker
 velruse
 pymongo

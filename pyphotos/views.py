@@ -5,8 +5,6 @@ from pyramid.httpexceptions import HTTPFound
 from pyramid.response import Response
 from pyramid.security import remember, forget, authenticated_userid
 
-
-from velruse.store.mongodb_store import MongoDBStore
 from pyramid.view import view_config
 
 from pyphotos.model import User
@@ -119,11 +117,8 @@ def login(request):
         if real_passwd == password:
             headers = remember(request, login)
             return HTTPFound(location='/', headers=headers)
-        
-        
-    termination = request.route_url("velruse_endpoint")
     
-    return {"termination":termination}
+    return {}
     
 
 #simply logout
@@ -134,45 +129,33 @@ def logout(request):
     return HTTPFound(location='/', headers=headers)
 
 
-#page called after velruse authentication
-@view_config(route_name="velruse_endpoint")
-def endpoint(request):
-    
-    if 'token' in request.params:
-        token = request.params['token']
-    
-        store = MongoDBStore(db="pyphotos")
-        values = store.retrieve(token)
-        
-        if values['status'] == 'ok':
-            print values
-            identifier = values['profile']['identifier']
-            print identifier
-            
-            try:
-                username = request.db.identifiers.find_one({'id': identifier })['username']
-            except TypeError:
-                 if authenticated_userid(request) is not None:
-                      request.db.identifiers.insert({'id': identifier, 'username': authenticated_userid(request)  })
-                      request.session.flash('welcome back %s'%authenticated_userid(request))
-                      return HTTPFound(location='/')
-                 else:
-                     #no local account, try to create a new one
-                     if request.registry.settings['allownewaccount'] == 'True':
-                         request.session['identifier'] = identifier
-                         return HTTPFound(location='/newaccount')
-                         
-                
-            
-            headers = remember(request, username)
-            request.session.flash("welcome %s"%username)
-            
-            return HTTPFound(location='/', headers=headers)
-            
-        
-        print values
-    
-    return Response("hello")
+
+#velruse authentication endpoint
+@view_config(
+    context='velruse.AuthenticationComplete',
+    renderer='pyphotos:templates/login_result.mako',
+)
+def login_complete_view(request):
+    context = request.context
+    result = {
+        'provider_type': context.provider_type,
+        'provider_name': context.provider_name,
+        'profile': context.profile,
+        'credentials': context.credentials,
+    }
+
+    username = context.profile['accounts'][0]['username']
+    print "username:", username
+
+    headers = remember(request, username)
+    return HTTPFound(location="/", headers=headers)
+   
+    return {
+        'result': json.dumps(result, indent=4),
+    }
+
+
+
     
 @view_config(route_name="createticket", renderer='pyphotos:templates/displayticket.mako', permission='createticket')
 def createticket(request):
