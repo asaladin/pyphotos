@@ -9,6 +9,8 @@ from pyramid.security import remember, forget, authenticated_userid
 from velruse.store.mongodb_store import MongoDBStore
 from pyramid.view import view_config
 
+from pyphotos.model import User
+
 
 import time
 import Image
