@@ -19,6 +19,8 @@ pyphotos.egg-info/paster_plugins.txt
 pyphotos.egg-info/requires.txt
 pyphotos.egg-info/top_level.txt
 pyphotos/model/__init__.py
+pyphotos/model/album.py
+pyphotos/model/photo.py
 pyphotos/model/user.py
 pyphotos/static/bootstrap.css
 pyphotos/static/bootstrap.js

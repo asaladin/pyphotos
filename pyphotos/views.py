@@ -7,7 +7,8 @@ from pyramid.security import remember, forget, authenticated_userid
 
 from pyramid.view import view_config
 
-from pyphotos.model import User
+from pyphotos.model import User, Album
+from pyphotos.model import Photo
 
 
 import time
@@ -21,33 +22,24 @@ from io import BytesIO
 
 @view_config(renderer='pyphotos:templates/index.mako', route_name="index")
 def my_view(request):
-    albums = request.db.albums.find({'visible': True})
-    print dir(User)
-    print type(User)
 
-    print list(User.m.find())
-
+    albums = Album.m.find({'public':True})
 
     return {'project':'pyphotos', 'albums': albums, 'myalbums': lib.myalbums(request) }
 
 
 @view_config(route_name='listalbum', renderer="pyphotos:templates/list.mako", permission='view')
 def listalbum(request):
-    session = request.session
     
     username = authenticated_userid(request)
-   
     
     albumname = request.matchdict['albumname']
-    photos = request.db.photos.find({'album': albumname})
-    
-    
-    
+    photos = Photo.m.find({'albumname': albumname})
+   
     photos=list(photos)
     
     for p in photos:
-        p['url'] = request.s3.generate_url(3600 , "GET" ,'asphotos','%s/%s'%(albumname,p['filename']) )
-
+        p.url = request.s3.generate_url(3600 , "GET" ,'asphotos','%s/%s'%(albumname,p.filename) )
     
     return {'albumname': albumname, 'photos': photos, 'username': username}
 
@@ -58,7 +50,12 @@ def newalbum(request):
         visible = False
         if 'visible' in request.POST:
             visible = True
-        request.db.albums.insert({'title': albumname, 'visible':visible, 'owner': authenticated_userid(request)})
+        album = Album()
+        album.title = albumname
+        album.owner = authenticated_userid(request)       
+        album.public = visible
+        album.m.save()
+
         return HTTPFound(location="/")
 
     
@@ -103,8 +100,12 @@ def addphotoform(request):
         
         imagefile.seek(0)
         file_id = request.fs.put(imagefile, filename=filename)
-        request.db.photos.insert({'album': albumname, 'filename': filename, 'thumbnailid': file_id})
-        
+
+        photo = Photo()
+        photo.albumname = albumname
+        photo.filename = filename
+        photo.thumbnailid = file_id
+        photo.m.save()
                 
         return HTTPFound("/album/%s/addphoto"%albumname)
         

@@ -21,11 +21,13 @@ def grouper(n, iterable, fillvalue=None):
 %for group_photo in grouper(2 , photos):
 <div class="row-fluid">
     %for photo in group_photo:
+    %if photo is not None:
     <div class="span4">
-       <a href="${request.route_url('fullsize', albumname=albumname,  filename=photo['filename'])}"> 
-          <img src="/thumbnail?filename=${photo['filename']}" />  ${photo['filename']} 
+       <a href="${request.route_url('fullsize', albumname=albumname,  filename=photo.filename)}"> 
+          <img src="/thumbnail?filename=${photo.filename}" />  ${photo.filename} 
        </a> 
     </div><!--/span-->
+    %endif
     %endfor
 
 </div><!--/row-->
