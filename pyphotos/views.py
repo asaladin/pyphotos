@@ -80,12 +80,12 @@ def addphotoform(request):
     if request.method == "POST":
         filename = request.POST['jpg'].filename
         inputfile = request.POST['jpg'].file
-        
-        print filename
 
+        #store the photo in S3
         key = request.bucket.new_key("%s/%s"%(albumname,filename))
         key.set_contents_from_file(inputfile)
         
+        #create the thumbnail
         inputfile.seek(0)
         size = 300, 300
         im = Image.open(inputfile)
@@ -98,9 +98,11 @@ def addphotoform(request):
                 
         im.save(imagefile, 'JPEG')
         
+        #store the thumbnail into mongodb gridfs
         imagefile.seek(0)
         file_id = request.fs.put(imagefile, filename=filename)
 
+        #store the new photo in the database
         photo = Photo()
         photo.albumname = albumname
         photo.filename = filename
