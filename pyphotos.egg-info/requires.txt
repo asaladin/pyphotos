@@ -6,4 +6,5 @@ pyramid_beaker
 velruse
 pymongo
 PIL
+py-bcrypt
 waitress
