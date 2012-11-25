@@ -26,6 +26,10 @@ def ingroup(userid, request):
     return [userid]
 
 
+def get_user(request):
+    username = authenticated_userid(request)
+    return username
+
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
@@ -86,6 +90,8 @@ def main(global_config, **settings):
     config.add_route('fullsize', '/fs/{albumname}/{filename}')
                     
     config.add_static_view('static', 'pyphotos:static', cache_max_age=3600)
+
+    config.add_request_method(get_user, name='user', property=True, reify=True)
     
     config.scan()
     
