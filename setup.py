@@ -17,6 +17,7 @@ requires = [
             'PIL',
             'py-bcrypt', 
             'waitress',
+            'pybrowserid',
            ]
 
 setup(name='pyphotos',

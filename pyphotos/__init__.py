@@ -40,6 +40,9 @@ def main(global_config, **settings):
     config.scan("pyphotos.model")
     M.init_mongo(engine=(settings.get('mongo.url'), settings.get('mongo.database')))
 
+    #config.include("pyramid_persona")
+
+
     authentication_policy = AuthTktAuthenticationPolicy('seekrit', callback=ingroup)
     authorization_policy = ACLAuthorizationPolicy()
     
@@ -74,6 +77,7 @@ def main(global_config, **settings):
     config.add_route("addphotoform", "/album/{albumname}/addphoto")
     config.add_route("view_thumbnail", "/thumbnail")
     config.add_route("login", "/login")
+    config.add_route("browserid_login", "/login/browserid")
     config.add_route("logout", "/logout")
     config.add_route("newalbum", "/newalbum")
     config.add_route("createticket", "/createticket/{albumname}", factory="pyphotos.resources.AlbumFactory")

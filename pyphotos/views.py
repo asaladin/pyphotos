@@ -2,6 +2,8 @@
 # encoding:  utf-8
 
 from pyramid.httpexceptions import HTTPFound
+from pyramid.httpexceptions import HTTPBadRequest
+
 from pyramid.response import Response
 from pyramid.security import remember, forget, authenticated_userid
 
@@ -24,8 +26,12 @@ from io import BytesIO
 def my_view(request):
 
     albums = Album.m.find({'public':True})
+    username = authenticated_userid(request)
+    if username is None: 
+         username = 'null'
 
-    return {'project':'pyphotos', 'albums': albums, 'myalbums': lib.myalbums(request) }
+    return {'project':'pyphotos', 'albums': albums, 'myalbums': lib.myalbums(request),
+            'username': username}
 
 
 @view_config(route_name='listalbum', renderer="pyphotos:templates/list.mako", permission='view')
@@ -126,8 +132,10 @@ def login(request):
         if real_passwd == password:
             headers = remember(request, login)
             return HTTPFound(location='/', headers=headers)
-    
-    return {}
+    username = authenticated_userid(request)
+    if username is None:
+       username='null'
+    return {'username': username}
     
 
 #simply logout
@@ -136,6 +144,24 @@ def logout(request):
     headers = forget(request)
     request.session.flash("You have logged out")
     return HTTPFound(location='/', headers=headers)
+
+#browserid login:
+@view_config(route_name="browserid_login")
+def bid_login(request):
+    assertion = request.POST['assertion']
+    print "assertion:", assertion
+    import browserid
+    import browserid.errors
+    try:
+        data = browserid.verify(assertion, "http://localhost:6543")
+    except (ValueError, browserid.errors.TrustError):
+        raise HTTPBadRequest('invalid assertion')
+
+    headers = remember(request, data['email'])
+    return Response(headers=headers)    
+
+
+
 
 
 

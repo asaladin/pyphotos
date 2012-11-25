@@ -13,3 +13,6 @@
          <input type="submit" value="Login with Google" />
    </form> 
 
+<img id="signin" src="/static/browserid_signin.png" />
+
+
