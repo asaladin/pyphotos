@@ -1,9 +1,10 @@
 from  pyramid.security import authenticated_userid
+from model import User, Album
 
 
 def myalbums(request):
     username = authenticated_userid(request)
-    albums = request.db.albums.find({'owner':username})
-    
-    return list(albums)
+    albums = Album.m.find({'owner': username})
+    albums = list(albums)
+    return albums
     
