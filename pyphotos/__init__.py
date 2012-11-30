@@ -121,7 +121,9 @@ def check_for_new_user(event):
         #don't reraise the NewUser exception if the new_user view is going to be visited
         if event.request.url != event.request.route_url('new_user'):
             raise NewUser()
-    
+    else:
+        user = users.first()
+        event.request.username = user.username
     
 
 def before_render(event):
