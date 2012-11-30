@@ -22,6 +22,9 @@ import boto
 import pyphotos.model as M
 from pyphotos.model import user
 
+from pyphotos.views import forbidden_view
+
+
 def ingroup(userid, request):
     return [userid]
 
@@ -40,15 +43,11 @@ def main(global_config, **settings):
     config.scan("pyphotos.model")
     M.init_mongo(engine=(settings.get('mongo.url'), settings.get('mongo.database')))
 
-    #config.include("pyramid_persona")
-
-
     authentication_policy = AuthTktAuthenticationPolicy('seekrit', callback=ingroup)
     authorization_policy = ACLAuthorizationPolicy()
     
     config.set_authentication_policy(authentication_policy)
     config.set_authorization_policy(authorization_policy)
-    
     
     #create mongodb connection:
     db_uri = settings['db_uri']
@@ -87,6 +86,9 @@ def main(global_config, **settings):
     config.add_route('fullsize', '/fs/{albumname}/{filename}')
                     
     config.add_static_view('static', 'pyphotos:static', cache_max_age=3600)
+    
+    config.add_forbidden_view(forbidden_view)
+    
 
     config.add_request_method(get_user, name='user', property=True, reify=True)
     

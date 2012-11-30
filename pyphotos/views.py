@@ -187,3 +187,7 @@ def fullsize_view(request):
     url = request.s3.generate_url(3600 , "GET" ,'asphotos','%s/%s'%(albumname,filename) )
     return {'url': url}
     
+def forbidden_view(request):
+    if request.user is None:
+        return Response("You must <a href='/login'>log in</a>")
+    return Response("You are not allowed to view this ressource. <a href='/'>back home</a>")
