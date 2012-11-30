@@ -90,10 +90,10 @@
 
 $('#signout').click(function() { navigator.id.logout(); return false;});
 
-%if username == 'null':
+%if request.user is None:
 var currentUser = null;
 %else:
-var currentUser = '${username}';
+var currentUser = '${request.user}';
 %endif
  
 navigator.id.watch({

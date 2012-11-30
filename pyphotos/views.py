@@ -26,12 +26,7 @@ from io import BytesIO
 def my_view(request):
 
     albums = Album.m.find({'public':True})
-    username = authenticated_userid(request)
-    if username is None: 
-         username = 'null'
-
-    return {'project':'pyphotos', 'albums': albums, 'myalbums': lib.myalbums(request),
-            'username': username}
+    return {'project':'pyphotos', 'albums': albums, 'myalbums': lib.myalbums(request)}
 
 
 @view_config(route_name='listalbum', renderer="pyphotos:templates/list.mako", permission='view')
@@ -132,10 +127,8 @@ def login(request):
         if real_passwd == password:
             headers = remember(request, login)
             return HTTPFound(location='/', headers=headers)
-    username = authenticated_userid(request)
-    if username is None:
-       username='null'
-    return {'username': username}
+    
+    return {}
     
 
 #simply logout
