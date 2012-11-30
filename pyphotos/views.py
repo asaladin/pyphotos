@@ -22,6 +22,28 @@ import lib
 
 from io import BytesIO
 
+
+class NewUser(Exception): pass 
+
+@view_config(context=NewUser)
+def new_user_exception(request):
+    return HTTPFound(request.route_path('new_user'))
+    
+@view_config(route_name="new_user", renderer="pyphotos:templates/newuser.mako")
+def new_user(request):
+    
+    if request.method == "POST":
+        user = User()
+        user.username = request.POST['username']
+        user.browserid = request.user
+        user.m.save()
+        #TODO: check userame is unique
+        return HTTPFound(request.route_path('index'))
+    return {}    
+        
+    
+    
+
 @view_config(renderer='pyphotos:templates/index.mako', route_name="index")
 def my_view(request):
 

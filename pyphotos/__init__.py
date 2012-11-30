@@ -8,6 +8,7 @@ from pyramid.authorization import ACLAuthorizationPolicy
 
 from  pyramid.security import authenticated_userid
 
+from pyramid.httpexceptions import HTTPFound
 
 import pyramid_beaker
 import random
@@ -61,6 +62,7 @@ def main(global_config, **settings):
     
     config.add_subscriber(add_mongo_db, NewRequest)
     config.add_subscriber(before_render, BeforeRender)
+    config.add_subscriber(check_for_new_user, NewRequest)
     
     #add root account if none present:
     if db.users.find({'admin':True}).count() == 0:
@@ -82,6 +84,7 @@ def main(global_config, **settings):
     config.add_route("allowview", "/allow/{credential}")
     config.add_route('myalbums', '/myalbums')
     config.add_route('fullsize', '/fs/{albumname}/{filename}')
+    config.add_route('new_user', "/newuser")
                     
     config.add_static_view('static', 'pyphotos:static', cache_max_age=3600)
     
@@ -95,7 +98,11 @@ def main(global_config, **settings):
     
     return config.make_wsgi_app()
 
+from views import NewUser  
+    
 def add_mongo_db(event):
+    print event.request
+    
     settings = event.request.registry.settings
     db = settings['db_conn'][settings['db_name']]
     event.request.db = db
@@ -103,10 +110,22 @@ def add_mongo_db(event):
     
     event.request.s3 = settings['s3']
     event.request.bucket = settings['bucket']
+
+from pyphotos.model import User    
+
+def check_for_new_user(event):
+    userid = authenticated_userid(event.request)
+    if userid is None: return
+    users = User.m.find({"browserid": userid})
+    if len(users) == 0:  #only redirect to new_user if the user is not in the database
+        #don't reraise the NewUser exception if the new_user view is going to be visited
+        if event.request.url != event.request.route_url('new_user'):
+            raise NewUser()
     
     
 
 def before_render(event):
     #event["username"] = authenticated_userid(event['request'])
     event["myalbums"] = lib.myalbums(event['request'])
+    
     

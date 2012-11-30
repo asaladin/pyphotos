@@ -11,7 +11,7 @@ class User(Document):
         name = 'users'
 
     _id = Field(schema.ObjectId)
-    user_name = Field(str)
+    username = Field(str)
     browserid = Field(str)
     hashed_password = Field(str, if_missing='')
 
