@@ -24,6 +24,7 @@ pyphotos/model/photo.py
 pyphotos/model/user.py
 pyphotos/static/bootstrap.css
 pyphotos/static/bootstrap.js
+pyphotos/static/browserid_signin.png
 pyphotos/templates/addphoto.mako
 pyphotos/templates/base.mako
 pyphotos/templates/displayticket.mako
