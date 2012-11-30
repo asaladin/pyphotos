@@ -10,7 +10,7 @@ class Album(Document):
         name = 'albums'
 
     _id = Field(schema.ObjectId)
-    title = Field(str)
-    owner = Field(str)
-    public = Field(bool)
+    title = Field(str, required=True)
+    owner = Field(str, required=True)
+    public = Field(bool, required=True)
 
