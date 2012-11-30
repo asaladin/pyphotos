@@ -39,7 +39,7 @@
             ##  <li><a href="#contact">Contact</a></li>
             </ul>
             %if request.user is not None:
-                <p class="navbar-text pull-right">Logged in as <a href="#">${request.user}</a> | <a href='/logout' id='signout'> logout </a> </p>
+                <p class="navbar-text pull-right">Logged in as <a href="#">${request.username}</a> | <a href='/logout' id='signout'> logout </a> </p>
             %else: 
                <p class="navbar-text pull-right"><a href="/login">Log in </a></p> 
             %endif    

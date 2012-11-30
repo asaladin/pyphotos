@@ -11,8 +11,8 @@ class User(Document):
         name = 'users'
 
     _id = Field(schema.ObjectId)
-    first_name = Field(str)
-    public = Field(bool)
+    username = Field(str)
+    browserid = Field(str)
     hashed_password = Field(str, if_missing='')
 
     def set_password(self, clear_password):
