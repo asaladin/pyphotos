@@ -101,8 +101,7 @@ def main(global_config, **settings):
 from views import NewUser  
     
 def add_mongo_db(event):
-    print event.request
-    
+        
     settings = event.request.registry.settings
     db = settings['db_conn'][settings['db_name']]
     event.request.db = db
