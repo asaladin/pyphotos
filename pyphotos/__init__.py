@@ -50,15 +50,16 @@ def main(global_config, **settings):
     config.set_authorization_policy(authorization_policy)
     
     
-    
+    #create mongodb connection:
     db_uri = settings['db_uri']
     conn = pymongo.Connection(db_uri)
     db = conn[settings['db_name']]
     config.registry.settings['db_conn'] = conn
     
+    #create amazon S3 connection:
     s3 = boto.connect_s3()
     config.registry.settings['s3'] = s3
-    config.registry.settings['bucket'] = s3.get_bucket("asphotos")
+    config.registry.settings['bucket'] = s3.get_bucket(settings['bucket_name'])
     
     
     config.add_subscriber(add_mongo_db, NewRequest)
