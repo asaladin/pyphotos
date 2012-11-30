@@ -118,15 +118,9 @@ def addphotoform(request):
 #page showing login options
 @view_config(route_name="login", renderer="pyphotos:templates/login.mako")
 def login(request):
-    if 'login' in request.POST:
-        login = request.POST["login"]
-        password = request.POST["password"]
-        
-        #TODO: real security check...
-        real_passwd = request.db.users.find_one({'login': login})['pwd']
-        if real_passwd == password:
-            headers = remember(request, login)
-            return HTTPFound(location='/', headers=headers)
+    #browserid reloads the current page, so simply go back to home if the user has logged in
+    if authenticated_userid(request) is not None:
+        return HTTPFound(location="/")
     
     return {}
     
@@ -146,42 +140,12 @@ def bid_login(request):
     import browserid
     import browserid.errors
     try:
-        data = browserid.verify(assertion, "http://localhost:6543")
+        data = browserid.verify(assertion, "http://pyphotos:6543")
     except (ValueError, browserid.errors.TrustError):
         raise HTTPBadRequest('invalid assertion')
 
     headers = remember(request, data['email'])
-    return Response(headers=headers)    
-
-
-
-
-
-
-#velruse authentication endpoint
-@view_config(
-    context='velruse.AuthenticationComplete',
-    renderer='pyphotos:templates/login_result.mako',
-)
-def login_complete_view(request):
-    context = request.context
-    result = {
-        'provider_type': context.provider_type,
-        'provider_name': context.provider_name,
-        'profile': context.profile,
-        'credentials': context.credentials,
-    }
-
-    username = context.profile['accounts'][0]['username']
-    print "username:", username
-
-    headers = remember(request, username)
-    return HTTPFound(location="/", headers=headers)
-   
-    return {
-        'result': json.dumps(result, indent=4),
-    }
-
+    return HTTPFound(location="/", headers=headers)    
 
 
     

@@ -37,10 +37,6 @@ def main(global_config, **settings):
     config = Configurator(root_factory=Root, settings=settings)
     config.include(pyramid_beaker)
 
-    config.include("velruse.providers.openid")
-    config.include('velruse.providers.google_oauth2')
-    config.add_openid_login()
-
     config.scan("pyphotos.model")
     M.init_mongo(engine=(settings.get('mongo.url'), settings.get('mongo.database')))
 
@@ -110,6 +106,6 @@ def add_mongo_db(event):
     
 
 def before_render(event):
-    event["username"] = authenticated_userid(event['request'])
+    #event["username"] = authenticated_userid(event['request'])
     event["myalbums"] = lib.myalbums(event['request'])
     
