@@ -118,8 +118,15 @@ def addphotoform(request):
 #page showing login options
 @view_config(route_name="login", renderer="pyphotos:templates/login.mako")
 def login(request):
+    userid = authenticated_userid(request)
     #browserid reloads the current page, so simply go back to home if the user has logged in
-    if authenticated_userid(request) is not None:
+    if userid is not None:
+        try:
+            user = User.m.find({'browserid':userid}).one()
+            print user
+        except:
+            return HTTPFound(location='/newuser')
+        
         return HTTPFound(location="/")
     
     return {}

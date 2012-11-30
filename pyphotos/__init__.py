@@ -29,9 +29,7 @@ def ingroup(userid, request):
     return [userid]
 
 
-def get_user(request):
-    username = authenticated_userid(request)
-    return username
+
 
 
 def main(global_config, **settings):
@@ -90,7 +88,7 @@ def main(global_config, **settings):
     config.add_forbidden_view(forbidden_view)
     
 
-    config.add_request_method(get_user, name='user', property=True, reify=True)
+    config.add_request_method('pyphotos.lib.get_user', name='user', property=True, reify=True)
     
     config.scan()
     
