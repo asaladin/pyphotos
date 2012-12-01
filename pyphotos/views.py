@@ -209,7 +209,7 @@ def allowview(request):
         
     return HTTPFound(location='/')
     
-@view_config(route_name='fullsize', renderer='pyphotos:templates/fullsize.mako')
+@view_config(route_name='fullsize', renderer='pyphotos:templates/fullsize.mako', permission='view')
 def fullsize_view(request):
     albumname = request.matchdict['albumname']
     filename = request.matchdict['filename']
