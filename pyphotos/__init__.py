@@ -83,8 +83,10 @@ def main(global_config, **settings):
     config.add_route("createticket", "/createticket/{albumname}", factory="pyphotos.resources.AlbumFactory")
     config.add_route("allowview", "/allow/{credential}")
     config.add_route('myalbums', '/myalbums')
-    config.add_route('fullsize', '/fs/{albumname}/{filename}', factory="pyphotos.resources.AlbumFactory")
+    config.add_route('fullsize', '/fullsize/{albumname}/{filename}', factory="pyphotos.resources.AlbumFactory")
     config.add_route('new_user', "/newuser")
+    config.add_route('import_s3', '/import/s3')
+    config.add_route('generate_thumbnail', '/thumbnail/generate/{albumname}/{filename}')
                     
     config.add_static_view('static', 'pyphotos:static', cache_max_age=3600)
     
