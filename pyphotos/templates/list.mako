@@ -1,7 +1,11 @@
 <%inherit file="base.mako" />
 
 <%def name='generate(url)' >
+   %if "/thumbnail/generate/" in url:
+   ${url}
+   %else:
    ${request.s3.generate_url(3600 , "GET" ,'asphotos', url )}
+   %endif
 </%def>
 
 
