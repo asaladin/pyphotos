@@ -87,6 +87,7 @@ def main(global_config, **settings):
     config.add_route('new_user', "/newuser")
     config.add_route('import_s3', '/import/s3')
     config.add_route('generate_thumbnail', '/thumbnail/generate/{albumname}/{filename}')
+    config.add_route('admin', '/admin')
                     
     config.add_static_view('static', 'pyphotos:static', cache_max_age=3600)
     

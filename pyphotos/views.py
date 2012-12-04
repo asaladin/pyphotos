@@ -295,7 +295,9 @@ def import_s3(request):
     return Response("not imported yet")
     
     
-    
+@view_config(route_name='admin', renderer='pyphotos:templates/admin.mako', permission='admin')
+def admin(request):
+    return {}
     
     
     
