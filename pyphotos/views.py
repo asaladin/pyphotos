@@ -224,7 +224,7 @@ def bid_login(request):
     import browserid
     import browserid.errors
     try:
-        data = browserid.verify(assertion, "http://pyphotos:6543")
+        data = browserid.verify(assertion, request.registry.settings['persona.siteid'])
     except (ValueError, browserid.errors.TrustError):
         raise HTTPBadRequest('invalid assertion')
 
