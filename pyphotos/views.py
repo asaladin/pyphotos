@@ -66,8 +66,18 @@ def listalbum(request):
    
     photos=list(photos)
     
+    
+    def url_for_thumbnail(url):
+        if "/thumbnail/generate/" in url:
+            return url
+        else:
+            return request.s3.generate_url(3600 , "GET" ,'asphotos', url )
+
+
+    
     for p in photos:
         p.url = request.s3.generate_url(3600 , "GET" ,'asphotos','%s/%s'%(albumname,p.filename) )
+        p.thumbnailpath = url_for_thumbnail(p.thumbnailpath)
     
     return {'albumname': albumname, 'photos': photos, 'username': username}
 
@@ -109,7 +119,7 @@ def generate_thumbnail(request):
     key = Key(request.bucket)
     imagepath = '%s/%s'%(albumname, filename)
     thumbnailpath = 'thumbnails/'+imagepath
-    key.key=thumbnailpath  #I know, boto...
+    key.key=imagepath  #I know, boto...
     
     f = key.get_contents_as_string()
     
