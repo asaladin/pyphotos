@@ -8,7 +8,7 @@
 </div>
 
 <a href="addphoto">Ajouter une photo</a>
-<a href="/createticket/${albumname}">Inviter quelqu'un</a>
+##<a href="/createticket/${albumname}">Inviter quelqu'un</a>
 
 
 <% 
