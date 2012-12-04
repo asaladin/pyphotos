@@ -22,6 +22,9 @@ import lib
 
 from io import BytesIO
 
+from boto.s3.key import Key
+
+
 
 class NewUser(Exception): pass 
 
@@ -53,6 +56,8 @@ def my_view(request):
 
 @view_config(route_name='listalbum', renderer="pyphotos:templates/list.mako", permission='view')
 def listalbum(request):
+    
+
     
     username = authenticated_userid(request)
     
@@ -95,6 +100,46 @@ def thumbnail(request):
     return Response(fich.read(),content_type="image/jpeg")
 
 
+@view_config(route_name='generate_thumbnail')
+def generate_thumbnail(request):
+    albumname = request.matchdict['albumname']
+    filename = request.matchdict['filename']
+    
+    #get the S3 key:
+    key = Key(request.bucket)
+    imagepath = '%s/%s'%(albumname, filename)
+    thumbnailpath = 'thumbnails/'+imagepath
+    key.key=thumbnailpath  #I know, boto...
+    
+    f = key.get_contents_as_string()
+    
+    #create the thumbnail
+    size = 300, 300
+    inputfile = BytesIO(f)
+    im = Image.open(inputfile)
+    im.thumbnail(size, Image.ANTIALIAS)
+        
+    imagefile = BytesIO()
+    def fileno():
+        raise AttributeError
+    imagefile.fileno = fileno #hack to make PIL and BytesIO work together...
+                
+    im.save(imagefile, 'JPEG')
+    
+    imagefile.seek(0)
+    
+    key = request.bucket.new_key("thumbnails/%s/%s"%(albumname,filename))
+    key.set_contents_from_file(imagefile)
+    
+    #update photo url:
+    photo = Photo.m.find({'albumname':albumname, 'filename':filename}).one()
+    photo.thumbnailpath = thumbnailpath
+    photo.m.save()
+        
+    return Response(imagefile, content_type='image/jpeg')
+    
+    
+    
 @view_config(route_name="addphotoform", renderer="pyphotos:templates/addphoto.mako")
 def addphotoform(request):
     
@@ -215,6 +260,50 @@ def fullsize_view(request):
     filename = request.matchdict['filename']
     url = request.s3.generate_url(3600 , "GET" ,'asphotos','%s/%s'%(albumname,filename) )
     return {'url': url}
+
+    
+@view_config(route_name="import_s3", permission="create")
+def import_s3(request):
+    if request.method == "POST":
+        if 'dirname' in request.POST:
+            dirname = request.POST['dirname']
+            albumname = request.POST['albumname']
+            albumpublic = request
+            
+            album = Album()
+            album.title = albumname
+            album.owner = authenticated_userid(request)
+            visible = False
+            if 'visible' in request.POST:
+                visible = True
+            album.public = visible
+            
+            album.m.save()
+            
+            listdir = request.bucket.list(dirname)
+            for f in listdir:
+                photo = Photo()
+                filename = f.name.strip(albumname+'/')
+                
+                photo.filename = filename
+                photo.albumname = albumname
+                photo.thumbnailpath="/thumbnail/generate/"+ f.name
+                print "thumbnail path:", photo.thumbnailpath
+                photo.m.save()
+            
+            
+    return Response("not imported yet")
+    
+    
+@view_config(route_name='admin', renderer='pyphotos:templates/admin.mako', permission='admin')
+def admin(request):
+    return {}
+    
+    
+    
+    
+    
+    
     
 def forbidden_view(request):
     if request.user is None:

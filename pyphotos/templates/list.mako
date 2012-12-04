@@ -1,5 +1,13 @@
 <%inherit file="base.mako" />
 
+<%def name='generate(url)' >
+   %if "/thumbnail/generate/" in url:
+   ${url}
+   %else:
+   ${request.s3.generate_url(3600 , "GET" ,'asphotos', url )}
+   %endif
+</%def>
+
 
 <div class='hero-unit'>
 <h2>album: ${albumname}</h2>
@@ -23,8 +31,8 @@ def grouper(n, iterable, fillvalue=None):
     %for photo in group_photo:
     %if photo is not None:
     <div class="span4">
-       <a href="${request.route_url('fullsize', albumname=albumname,  filename=photo.filename)}"> 
-          <img src="/thumbnail?filename=${photo.filename}" />  ${photo.filename} 
+       <a href="${request.route_url('fullsize', albumname=photo.albumname, filename=photo.filename)}"> 
+          <img src="${generate(photo.thumbnailpath)}" />  ${photo.filename} 
        </a> 
     </div><!--/span-->
     %endif

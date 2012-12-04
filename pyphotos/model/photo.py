@@ -12,5 +12,6 @@ class Photo(Document):
     _id = Field(schema.ObjectId)
     filename = Field(str)
     albumname = Field(str,required=True)
+    thumbnailpath = Field(str)
     thumbnailid = Field(schema.ObjectId)
     
