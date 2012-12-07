@@ -66,7 +66,9 @@
                  <ul class="nav nav-list">
                      <li class="nav-header">Sidebar</li>
     <!--             <li class="active"><a href="#">Link</a></li>-->
+                    %if request.user is not None:
                      <li><a href='/newalbum'>Create an album</a></li>
+                    %endif
                      <li class="nav-header">Your albums</li>
                      %for a in myalbums[:5]:
                          <li><a href="/album/${a['title']}/list">${a['title']}</a></li>

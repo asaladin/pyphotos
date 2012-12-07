@@ -129,7 +129,6 @@ def check_for_new_user(event):
     
 
 def before_render(event):
-    #event["username"] = authenticated_userid(event['request'])
     event["myalbums"] = lib.myalbums(event['request'])
     
     
