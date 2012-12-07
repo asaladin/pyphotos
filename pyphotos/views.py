@@ -173,15 +173,16 @@ def addphotoform(request):
                 
         im.save(imagefile, 'JPEG')
         
-        #store the thumbnail into mongodb gridfs
+        #store the thumbnail into S3:
         imagefile.seek(0)
-        file_id = request.fs.put(imagefile, filename=filename)
+        key = request.bucket.new_key("/thumbnails/%s/%s"%(albumname,filename))
+        key.set_contents_from_file(imagefile)
 
         #store the new photo in the database
         photo = Photo()
         photo.albumname = albumname
         photo.filename = filename
-        photo.thumbnailid = file_id
+        photo.thumbnailpath = "/thumbnails/%s/%s"%(albumname,filename)
         photo.m.save()
                 
         return HTTPFound("/album/%s/addphoto"%albumname)
