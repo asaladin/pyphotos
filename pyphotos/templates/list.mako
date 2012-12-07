@@ -7,8 +7,11 @@
 <h2>album: ${albumname}</h2>
 </div>
 
+%if owner == username:
 <a href="addphoto">Ajouter une photo</a>
-##<a href="/createticket/${albumname}">Inviter quelqu'un</a>
+<a href="/createticket/${albumname}">Inviter quelqu'un</a>
+%endif
+
 
 
 <% 

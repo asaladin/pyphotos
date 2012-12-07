@@ -27,6 +27,7 @@ class AlbumFactory(object):
         owner = album['owner']
         self.__acl__.append( (Allow, owner, 'createticket'), )
         self.__acl__.append( (Allow, owner, 'view'), )
+        self.__acl__.append( (Allow, owner, 'append'), ) #add new photo
         if album['public'] is True:
             self.__acl__.append( (Allow, Everyone, 'view') )
         

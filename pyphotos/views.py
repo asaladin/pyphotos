@@ -57,15 +57,13 @@ def my_view(request):
 @view_config(route_name='listalbum', renderer="pyphotos:templates/list.mako", permission='view')
 def listalbum(request):
     
-
-    
     username = authenticated_userid(request)
-    
     albumname = request.matchdict['albumname']
+    album = Album.m.find({'title': albumname}).one()
+    owner = album.owner
+
     photos = Photo.m.find({'albumname': albumname})
-   
     photos=list(photos)
-    
     
     def url_for_thumbnail(url):
         if "/thumbnail/generate/" in url:
@@ -73,13 +71,12 @@ def listalbum(request):
         else:
             return request.s3.generate_url(3600 , "GET" ,'asphotos', url )
 
-
     
     for p in photos:
         p.url = request.s3.generate_url(3600 , "GET" ,'asphotos','%s/%s'%(albumname,p.filename) )
         p.thumbnailpath = url_for_thumbnail(p.thumbnailpath)
     
-    return {'albumname': albumname, 'photos': photos, 'username': username}
+    return {'albumname': albumname, 'photos': photos, 'username': username, 'owner':owner}
 
 @view_config(route_name="newalbum", renderer="pyphotos:templates/newalbum.mako", permission="create")
 def newalbum(request):
@@ -150,7 +147,7 @@ def generate_thumbnail(request):
     
     
     
-@view_config(route_name="addphotoform", renderer="pyphotos:templates/addphoto.mako")
+@view_config(route_name="addphotoform", renderer="pyphotos:templates/addphoto.mako", permission='append')
 def addphotoform(request):
     
     albumname = request.matchdict['albumname']
@@ -319,3 +316,5 @@ def forbidden_view(request):
     if request.user is None:
         return Response("You must <a href='/login'>log in</a>")
     return Response("You are not allowed to view this ressource. <a href='/'>back home</a>")
+ 
+ 
