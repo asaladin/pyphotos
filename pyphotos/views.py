@@ -24,7 +24,8 @@ from io import BytesIO
 
 from boto.s3.key import Key
 
-
+import tasks
+import os
 
 class NewUser(Exception): pass 
 
@@ -44,12 +45,10 @@ def new_user(request):
         return HTTPFound(request.route_path('index'))
     return {}    
         
-    
-    
 
 @view_config(renderer='pyphotos:templates/index.mako', route_name="index")
 def my_view(request):
-
+    
     albums = Album.m.find({'public':True})
     return {'project':'pyphotos', 'albums': albums, 'myalbums': lib.myalbums(request)}
 
@@ -112,38 +111,13 @@ def generate_thumbnail(request):
     albumname = request.matchdict['albumname']
     filename = request.matchdict['filename']
     
-    #get the S3 key:
-    key = Key(request.bucket)
-    imagepath = '%s/%s'%(albumname, filename)
-    thumbnailpath = 'thumbnails/'+imagepath
-    key.key=imagepath  #I know, boto...
+    tasks.generate_thumbnail.delay(albumname, filename)
     
-    f = key.get_contents_as_string()
+    _here = os.path.dirname(__file__)
+    response = Response(content_type='image/jpeg')
+    response.app_iter = open(os.path.join(_here, 'static','notgenerated.png'), 'rb')
     
-    #create the thumbnail
-    size = 300, 300
-    inputfile = BytesIO(f)
-    im = Image.open(inputfile)
-    im.thumbnail(size, Image.ANTIALIAS)
-        
-    imagefile = BytesIO()
-    def fileno():
-        raise AttributeError
-    imagefile.fileno = fileno #hack to make PIL and BytesIO work together...
-                
-    im.save(imagefile, 'JPEG')
-    
-    imagefile.seek(0)
-    
-    key = request.bucket.new_key("thumbnails/%s/%s"%(albumname,filename))
-    key.set_contents_from_file(imagefile)
-    
-    #update photo url:
-    photo = Photo.m.find({'albumname':albumname, 'filename':filename}).one()
-    photo.thumbnailpath = thumbnailpath
-    photo.m.save()
-        
-    return Response(imagefile, content_type='image/jpeg')
+    return response
     
     
     

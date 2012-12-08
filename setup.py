@@ -18,6 +18,7 @@ requires = [
             'py-bcrypt', 
             'waitress',
             'pybrowserid',
+            'celery',
            ]
 
 setup(name='pyphotos',
