@@ -12,7 +12,9 @@ def bootstrap_pyramid(signal, sender):
         print "sender:", sender.app
         import os
         from pyramid.paster import bootstrap
-        settings = bootstrap('/home/adrien/Src/web/Pyramid/pyphotos.orig/development.ini')['registry'].settings
+        _here = os.path.dirname(__file__)
+        filepath = os.path.join(_here, "../development.ini")
+        settings = bootstrap(filepath)['registry'].settings
         conn = pymongo.Connection(settings['db_uri'])
         db = conn[settings['db_name']]
         sender.app.db = db
