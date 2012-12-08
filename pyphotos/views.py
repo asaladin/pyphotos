@@ -24,6 +24,7 @@ from io import BytesIO
 
 from boto.s3.key import Key
 
+import tasks
 
 
 class NewUser(Exception): pass 
@@ -44,12 +45,10 @@ def new_user(request):
         return HTTPFound(request.route_path('index'))
     return {}    
         
-    
-    
 
 @view_config(renderer='pyphotos:templates/index.mako', route_name="index")
 def my_view(request):
-
+    
     albums = Album.m.find({'public':True})
     return {'project':'pyphotos', 'albums': albums, 'myalbums': lib.myalbums(request)}
 
@@ -73,6 +72,7 @@ def listalbum(request):
 
     
     for p in photos:
+        tasks.printdb.delay(request.db)
         p.url = request.s3.generate_url(3600 , "GET" ,'asphotos','%s/%s'%(albumname,p.filename) )
         p.thumbnailpath = url_for_thumbnail(p.thumbnailpath)
     

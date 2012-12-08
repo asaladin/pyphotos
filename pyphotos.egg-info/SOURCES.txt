@@ -6,8 +6,11 @@ production.ini
 setup.cfg
 setup.py
 pyphotos/__init__.py
+pyphotos/celery.py
+pyphotos/celeryconfig.py
 pyphotos/lib.py
 pyphotos/resources.py
+pyphotos/tasks.py
 pyphotos/tests.py
 pyphotos/views.py
 pyphotos.egg-info/PKG-INFO
@@ -26,6 +29,7 @@ pyphotos/static/bootstrap.css
 pyphotos/static/bootstrap.js
 pyphotos/static/browserid_signin.png
 pyphotos/templates/addphoto.mako
+pyphotos/templates/admin.mako
 pyphotos/templates/base.mako
 pyphotos/templates/displayticket.mako
 pyphotos/templates/fullsize.mako
@@ -34,3 +38,4 @@ pyphotos/templates/list.mako
 pyphotos/templates/login.mako
 pyphotos/templates/mytemplate.pt
 pyphotos/templates/newalbum.mako
+pyphotos/templates/newuser.mako

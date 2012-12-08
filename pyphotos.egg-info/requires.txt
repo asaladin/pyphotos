@@ -9,3 +9,4 @@ PIL
 py-bcrypt
 waitress
 pybrowserid
+celery
