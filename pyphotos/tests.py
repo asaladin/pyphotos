@@ -27,15 +27,16 @@ class ViewTests(unittest.TestCase):
         private_album.public=False
         private_album.m.save()
         
+        self.request = testing.DummyRequest()
+        
 
     def tearDown(self):
         testing.tearDown()
 
     def test_my_view_anonymous(self):
         
-        request = testing.DummyRequest()
-        request.username = None
-        resp = views.my_view(request)
+        self.request.username = None
+        resp = views.my_view(self.request)
         self.assertEqual(resp['project'], 'pyphotos')
         titles = [a.title for a in resp['albums']]
         
@@ -46,11 +47,26 @@ class ViewTests(unittest.TestCase):
 
         
     def test_my_view_logged(self):
-        request = testing.DummyRequest()
-        request.username = "other@localhost"
         
-        resp = views.my_view(request)
-        
+        self.request.username = "other@localhost"
+        resp = views.my_view(self.request)
         mytitles = [a.title for a in resp['myalbums']]
         self.assertIn('privatealbum', mytitles)
+
+        
+    
+    def test_newalbum(self):
+        self.request.POST['albumname'] = 'myawesomealbum'
+        self.request.POST['visible'] = 'True'
+        
+        response = views.newalbum(self.request)
+        
+        from pyramid.httpexceptions import HTTPFound
+        self.assertTrue(isinstance(response, HTTPFound))
+        
+        albums = model.Album.m.find({"title": "myawesomealbum"}).all()
+        self.assertEqual(len(albums), 1)
+        
+        
+        
         

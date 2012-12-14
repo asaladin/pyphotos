@@ -88,7 +88,7 @@ def newalbum(request):
             visible = True
         album = Album()
         album.title = albumname
-        album.owner = authenticated_userid(request)       
+        album.owner = request.username       
         album.public = visible
         album.m.save()
 
