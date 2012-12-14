@@ -3,7 +3,7 @@ from model import User, Album
 
 
 def myalbums(request):
-    username = authenticated_userid(request)
+    username = request.username
     albums = Album.m.find({'owner': username})
     albums = list(albums)
     return albums

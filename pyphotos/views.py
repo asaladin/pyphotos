@@ -46,13 +46,15 @@ def new_user(request):
     return {}    
         
 
+# main page
 @view_config(renderer='pyphotos:templates/index.mako', route_name="index")
 def my_view(request):
-    
     albums = Album.m.find({'public':True})
     return {'project':'pyphotos', 'albums': albums, 'myalbums': lib.myalbums(request)}
 
 
+#this is the album main view
+#shows all photos from an album
 @view_config(route_name='listalbum', renderer="pyphotos:templates/list.mako", permission='view')
 def listalbum(request):
     
