@@ -9,7 +9,7 @@ from pyphotos import views
 class ViewTests(unittest.TestCase):
     def setUp(self):
         self.config = testing.setUp()
-        model.init_mongo(engine=("mongodb://localhost/", "pyphotos_tests"))
+        model.init_mongo(engine=("mim://localhost/", "pyphotos_tests"))
         
         model.User.m.remove()
         model.Photo.m.remove()
@@ -56,6 +56,7 @@ class ViewTests(unittest.TestCase):
         
     
     def test_newalbum(self):
+        self.request.username = "owner@localhost"
         self.request.POST['albumname'] = 'myawesomealbum'
         self.request.POST['visible'] = 'True'
         
