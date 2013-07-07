@@ -3,10 +3,16 @@ from model import User, Album
 
 
 def myalbums(request):
-    username = request.username
-    albums = Album.m.find({'owner': username})
-    albums = list(albums)
-    return albums
+    try:
+       username = request.username
+       albums = Album.m.find({'owner': username})
+       albums = list(albums)
+       
+    except AttributeError:
+        albums = list(Album.m.find({'public': True}))
+        
+    return albums    
+        
 
 def get_user(request):
     return authenticated_userid(request)
