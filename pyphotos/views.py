@@ -29,6 +29,10 @@ import os
 
 class NewUser(Exception): pass 
 
+def getBucketName(request):
+    return request.registry.settings['bucket_name']
+
+
 @view_config(context=NewUser)
 def new_user_exception(request):
     return HTTPFound(request.route_path('new_user'))
@@ -70,11 +74,11 @@ def listalbum(request):
         if "/thumbnail/generate/" in url:
             return url
         else:
-            return request.s3.generate_url(3600 , "GET" ,'asphotos', url )
+            return request.s3.generate_url(3600 , "GET" ,getBucketName(request), url )
 
     
     for p in photos:
-        p.url = request.s3.generate_url(3600 , "GET" ,'asphotos','%s/%s'%(albumname,p.filename) )
+        p.url = request.s3.generate_url(3600 , "GET" ,getBucketName(request),'%s/%s'%(albumname,p.filename) )
         p.thumbnailpath = url_for_thumbnail(p.thumbnailpath)
     
     return {'albumname': albumname, 'photos': photos, 'username': username, 'owner':owner}
@@ -242,7 +246,7 @@ def allowview(request):
 def fullsize_view(request):
     albumname = request.matchdict['albumname']
     filename = request.matchdict['filename']
-    url = request.s3.generate_url(3600 , "GET" ,'asphotos','%s/%s'%(albumname,filename) )
+    url = request.s3.generate_url(3600 , "GET" ,getBucketName(request),'%s/%s'%(albumname,filename) )
     return {'url': url}
 
     
