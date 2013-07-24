@@ -286,8 +286,9 @@ def import_s3(request):
                 
                 photo.filename = filename
                 photo.albumname = albumname
+                
                 photo.thumbnailpath="/thumbnail/generate/"+ f.name
-                print "thumbnail path:", photo.thumbnailpath
+                log.debug("thumbnail path:", photo.thumbnailpath)
                 photo.m.save()
             
             
