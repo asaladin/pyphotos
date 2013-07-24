@@ -9,7 +9,7 @@ def myalbums(request):
        albums = list(albums)
        
     except AttributeError:
-        albums = list(Album.m.find({'public': True}))
+        albums = []
         
     return albums    
         

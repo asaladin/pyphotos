@@ -27,6 +27,10 @@ from boto.s3.key import Key
 import tasks
 import os
 
+import logging
+log = logging.getLogger(__name__)
+
+
 class NewUser(Exception): pass 
 
 def getBucketName(request):
@@ -42,10 +46,17 @@ def new_user(request):
     
     if request.method == "POST":
         user = User()
-        user.username = request.POST['username']
+        username = request.POST['username']
+               
+        dup_users = User.m.find('username')
+        if len(dup_users)!=0:
+            return {}
+        
+        user.username = username
+        
         user.browserid = request.user
         user.m.save()
-        #TODO: check userame is unique
+
         return HTTPFound(request.route_path('index'))
     return {}    
         

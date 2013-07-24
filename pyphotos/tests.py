@@ -6,6 +6,10 @@ import pyphotos.model as model
 
 from pyphotos import views
 
+import logging
+log = logging.getLogger(__name__)
+
+
 class ViewTests(unittest.TestCase):
     def setUp(self):
         self.config = testing.setUp()
