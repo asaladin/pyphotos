@@ -83,8 +83,10 @@ def listalbum(request):
     
     def url_for_thumbnail(url):
         if "/thumbnail/generate/" in url:
+            #we need to generate a thumbnail, so we just let the browser call the appropriate view
             return url
         else:
+            #let's generate a signed URL for S3
             return request.s3.generate_url(3600 , "GET" ,getBucketName(request), url )
 
     
@@ -157,12 +159,13 @@ def addphotoform(request):
         im = Image.open(inputfile)
         im.thumbnail(size, Image.ANTIALIAS)
         
+        #create a file-like object for storing the thumbnail
         imagefile = BytesIO()
         def fileno():
             raise AttributeError
         imagefile.fileno = fileno #hack to make PIL and BytesIO work together...
                 
-        im.save(imagefile, 'JPEG')
+        im.save(imagefile, 'JPEG')  #save thumbnail in jpeg format into imagefile
         
         #store the thumbnail into S3:
         imagefile.seek(0)
