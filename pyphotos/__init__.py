@@ -14,7 +14,6 @@ import pyramid_beaker
 import random
 
 from gridfs import GridFS
-import pymongo
 import hashlib
 import lib
 
@@ -40,7 +39,6 @@ def main(global_config, **settings):
     config.include(pyramid_beaker)
 
     config.scan("pyphotos.model")
-    M.init_mongo(engine=(settings.get('mongo.url'), settings.get('mongo.database')))
 
     authentication_policy = AuthTktAuthenticationPolicy('seekrit', callback=ingroup)
     authorization_policy = ACLAuthorizationPolicy()
@@ -48,19 +46,14 @@ def main(global_config, **settings):
     config.set_authentication_policy(authentication_policy)
     config.set_authorization_policy(authorization_policy)
     
-    #create mongodb connection:
-    db_uri = settings['db_uri']
-    conn = pymongo.Connection(db_uri)
-    db = conn[settings['db_name']]
-    config.registry.settings['db_conn'] = conn
-    
+   
     #create amazon S3 connection:
     s3 = boto.connect_s3()
     config.registry.settings['s3'] = s3
     config.registry.settings['bucket'] = s3.get_bucket(settings['bucket_name'])
     
     
-    config.add_subscriber(add_mongo_db, NewRequest)
+    config.add_subscriber(add_s3, NewRequest)
     config.add_subscriber(before_render, BeforeRender)
     config.add_subscriber(check_for_new_user, NewRequest)
     
@@ -103,13 +96,8 @@ def main(global_config, **settings):
 
 from views import NewUser  
     
-def add_mongo_db(event):
-        
+def add_s3(event):
     settings = event.request.registry.settings
-    db = settings['db_conn'][settings['db_name']]
-    event.request.db = db
-    event.request.fs = GridFS(db)
-    
     event.request.s3 = settings['s3']
     event.request.bucket = settings['bucket']
 
