@@ -17,12 +17,12 @@ requires = [
             'pyramid_beaker',
             'pyramid_tm',
             'velruse', 
-            'pymongo', 
             'PIL',
             'py-bcrypt', 
             'waitress',
             'pybrowserid',
             'celery',
+            'sqlalchemy',
            ]
 
 setup(name='pyphotos',
