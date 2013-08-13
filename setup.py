@@ -23,6 +23,10 @@ requires = [
             'pybrowserid',
             'celery',
             'sqlalchemy',
+            'pyramid_tm',
+            'zope.sqlalchemy',
+            'transaction',
+            'SQLAlchemy',
            ]
 
 setup(name='pyphotos',
