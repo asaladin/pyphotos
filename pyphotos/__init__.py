@@ -25,6 +25,8 @@ from pyphotos.model import user
 
 from pyphotos.views import forbidden_view
 
+from pyphotos.storage import store 
+
 
 def ingroup(userid, request):
     return [userid]
@@ -55,10 +57,12 @@ def main(global_config, **settings):
     config.registry.settings['db_conn'] = conn
     
     #create amazon S3 connection:
-    s3 = boto.connect_s3()
-    config.registry.settings['s3'] = s3
-    config.registry.settings['bucket'] = s3.get_bucket(settings['bucket_name'])
-    
+    #s3 = boto.connect_s3()
+    #config.registry.settings['s3'] = s3
+    #config.registry.settings['bucket'] = s3.get_bucket(settings['bucket_name'])
+
+    mystore = store.LocalStore("/tmp/photos")
+    config.registry.settings['mystore'] = mystore 
     
     config.add_subscriber(add_mongo_db, NewRequest)
     config.add_subscriber(before_render, BeforeRender)
@@ -109,9 +113,8 @@ def add_mongo_db(event):
     db = settings['db_conn'][settings['db_name']]
     event.request.db = db
     event.request.fs = GridFS(db)
-    
-    event.request.s3 = settings['s3']
-    event.request.bucket = settings['bucket']
+
+    event.request.mystore = settings['mystore']
 
 from pyphotos.model import User    
 
