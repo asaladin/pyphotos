@@ -44,7 +44,7 @@ def main(global_config, **settings):
     config.scan("pyphotos.model")
     M.init_mongo(engine=(settings.get('mongo.url'), settings.get('mongo.database')))
 
-    authentication_policy = AuthTktAuthenticationPolicy('seekrit', callback=ingroup)
+    authentication_policy = AuthTktAuthenticationPolicy('seekrit', callback=ingroup, hashalg='sha512')
     authorization_policy = ACLAuthorizationPolicy()
     
     config.set_authentication_policy(authentication_policy)
