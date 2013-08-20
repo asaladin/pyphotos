@@ -13,6 +13,8 @@ from ..models import (
     DBSession,
     MyModel,
     Base,
+    User, 
+    Album,
     )
 
 

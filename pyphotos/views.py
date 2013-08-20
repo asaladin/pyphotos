@@ -1,4 +1,3 @@
-
 # encoding:  utf-8
 
 from pyramid.httpexceptions import HTTPFound
@@ -29,6 +28,13 @@ import os
 
 import logging
 log = logging.getLogger(__name__)
+
+
+from .models import (
+    DBSession,
+    User,
+    Album,
+    )
 
 
 class NewUser(Exception): pass 
@@ -64,7 +70,7 @@ def new_user(request):
 # main page
 @view_config(renderer='pyphotos:templates/index.mako', route_name="index")
 def my_view(request):
-    albums = Album.m.find({'public':True})
+    albums = DBSession.query(Album).filter(Album.public == True).all()
     return {'project':'pyphotos', 'albums': albums, 'myalbums': lib.myalbums(request)}
 
 
