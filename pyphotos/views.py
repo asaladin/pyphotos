@@ -8,8 +8,8 @@ from pyramid.security import remember, forget, authenticated_userid
 
 from pyramid.view import view_config
 
-from pyphotos.model import User, Album
-from pyphotos.model import Photo
+from pyphotos.models import User, Album
+from pyphotos.models import Photo
 
 
 import time
@@ -53,15 +53,11 @@ def new_user(request):
     if request.method == "POST":
         user = User()
         username = request.POST['username']
-               
-        dup_users = User.m.find('username')
-        if len(dup_users)!=0:
-            return {}
         
         user.username = username
         
-        user.browserid = request.user
-        user.m.save()
+        user.email = request.user
+        DBSession.add(user)
 
         return HTTPFound(request.route_path('index'))
     return {}    
@@ -316,4 +312,8 @@ def forbidden_view(request):
         return Response("You must <a href='/login'>log in</a>")
     return Response("You are not allowed to view this ressource. <a href='/'>back home</a>")
  
- 
+
+
+def debug_login(request):
+    headers = remember(request, 'root@localhost')
+    return HTTPFound(location="/", headers=headers)    

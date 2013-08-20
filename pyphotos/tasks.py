@@ -1,5 +1,5 @@
 from pyphotos.mycelery import celery
-from pyphotos.model import Photo, User, Album
+from pyphotos.models import Photo, User, Album
 
 from io import BytesIO
 from boto.s3.key import Key

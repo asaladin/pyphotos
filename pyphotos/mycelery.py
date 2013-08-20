@@ -3,7 +3,7 @@ from celery.signals import worker_init
 
 import pymongo
 
-import pyphotos.model as M
+import pyphotos.models as M
 import boto
 
 @worker_init.connect

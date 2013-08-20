@@ -23,6 +23,7 @@ class Album(Base):
     id = Column(Integer, primary_key=True)
     name = Column(Text, unique = True)
     public = Column(Boolean, default = False)
+    owner = Column(Text)
     
     def __init__(self, name):
        self.name = name
@@ -33,6 +34,11 @@ class User(Base):
     username = Column(Text, unique=True)
     email = Column(Text, unique=True)
 
+
+class Photo(Base):
+    __tablename__ = 'photos'
+    id = Column(Integer, primary_key = True)
+    
 
 
 class MyModel(Base):

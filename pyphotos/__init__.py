@@ -20,11 +20,8 @@ import lib
 
 import boto
 
-import pyphotos.model as M
-from pyphotos.model import user
-
 from pyphotos.views import forbidden_view
-
+from pyphotos.storage import store 
 
 def ingroup(userid, request):
     return [userid]
@@ -33,6 +30,7 @@ def ingroup(userid, request):
 from .models import (
     DBSession,
     Base,
+    User,
     )
 
 
@@ -50,9 +48,8 @@ def main(global_config, **settings):
     config = Configurator(root_factory=Root, settings=settings)
     config.include(pyramid_beaker)   # for sessions
 
-    config.scan("pyphotos.model")
 
-    authentication_policy = AuthTktAuthenticationPolicy('seekrit', callback=ingroup)
+    authentication_policy = AuthTktAuthenticationPolicy('seekrit', callback=ingroup, hashalg='sha512')
     authorization_policy = ACLAuthorizationPolicy()
     
     config.set_authentication_policy(authentication_policy)
@@ -60,10 +57,12 @@ def main(global_config, **settings):
     
    
     #create amazon S3 connection:
-    s3 = boto.connect_s3()
-    config.registry.settings['s3'] = s3
-    config.registry.settings['bucket'] = s3.get_bucket(settings['bucket_name'])
-    
+    #s3 = boto.connect_s3()
+    #config.registry.settings['s3'] = s3
+    #config.registry.settings['bucket'] = s3.get_bucket(settings['bucket_name'])
+
+    mystore = store.LocalStore("/tmp/photos")
+    config.registry.settings['mystore'] = mystore 
     
     config.add_subscriber(add_s3, NewRequest)
     config.add_subscriber(before_render, BeforeRender)
@@ -103,23 +102,32 @@ def main(global_config, **settings):
     
     config.scan()
     
-    
+      
+    if config.registry.settings['pyphotos_debug_mode']:
+        #add a local user:
+         
+        from .views import debug_login
+        config.add_route('debug_login', '/login/debug')
+        config.add_view(debug_login, route_name='debug_login')
+ 
+ 
     return config.make_wsgi_app()
 
 from views import NewUser  
     
 def add_s3(event):
     settings = event.request.registry.settings
-    event.request.s3 = settings['s3']
-    event.request.bucket = settings['bucket']
 
-from pyphotos.model import User    
+    event.request.mystore = settings['mystore']
+
 
 def check_for_new_user(event):
     userid = authenticated_userid(event.request)
     if userid is None: return
-    users = User.m.find({"browserid": userid})
-    if len(users) == 0:  #only redirect to new_user if the user is not in the database
+
+    users = DBSession.query(User).filter(User.email==userid)
+    print "users:", dir(users)
+    if users.count() == 0:  #only redirect to new_user if the user is not in the database
         #don't reraise the NewUser exception if the new_user view is going to be visited
         if event.request.url != event.request.route_url('new_user'):
             raise NewUser()
