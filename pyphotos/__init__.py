@@ -1,3 +1,4 @@
+from sqlalchemy import engine_from_config
 from pyramid.config import Configurator
 from pyphotos.resources import Root
 from pyramid.events import subscriber
@@ -29,14 +30,25 @@ def ingroup(userid, request):
     return [userid]
 
 
+from .models import (
+    DBSession,
+    Base,
+    )
 
 
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
+
+    #set up sqlalchemy:
+    engine = engine_from_config(settings, 'sqlalchemy.')
+    DBSession.configure(bind=engine)
+    Base.metadata.bind = engine
+
+    #pyramid configurator (sessions, routes, ...)
     config = Configurator(root_factory=Root, settings=settings)
-    config.include(pyramid_beaker)
+    config.include(pyramid_beaker)   # for sessions
 
     config.scan("pyphotos.model")
 
@@ -58,11 +70,11 @@ def main(global_config, **settings):
     config.add_subscriber(check_for_new_user, NewRequest)
     
     #add root account if none present:
-    if db.users.find({'admin':True}).count() == 0:
-        pwd = hashlib.sha1('%s'%random.randint(1,1e99)).hexdigest()
-        
-        db.users.insert({'login':'root', 'pwd':pwd, 'admin':True })
-        print 'created root account with password ', pwd
+    #if db.users.find({'admin':True}).count() == 0:
+    #    pwd = hashlib.sha1('%s'%random.randint(1,1e99)).hexdigest()
+    #    
+    #    db.users.insert({'login':'root', 'pwd':pwd, 'admin':True })
+    #    print 'created root account with password ', pwd
     
     
     config.add_route("index", "/")
