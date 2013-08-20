@@ -30,7 +30,7 @@ requires = [
            ]
 
 setup(name='pyphotos',
-      version='0.0',
+      version='0.1',
       description='pyphotos',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
@@ -52,6 +52,8 @@ setup(name='pyphotos',
       entry_points = """\
       [paste.app_factory]
       main = pyphotos:main
+      [console_scripts]
+      initialize_pyphotos_db = pyphotos.scripts.initializedb:main
       """,
       paster_plugins=['pyramid'],
       )
