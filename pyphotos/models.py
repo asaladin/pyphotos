@@ -2,7 +2,8 @@ from sqlalchemy import (
     Column,
     Integer,
     Text,
-    Boolean
+    Boolean,
+    ForeignKey,
     )
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -10,6 +11,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (
     scoped_session,
     sessionmaker,
+    relationship,
     )
 
 from zope.sqlalchemy import ZopeTransactionExtension
@@ -23,10 +25,10 @@ class Album(Base):
     id = Column(Integer, primary_key=True)
     name = Column(Text, unique = True)
     public = Column(Boolean, default = False)
-    owner = Column(Text)
+    ownerid = Column(Integer, ForeignKey('users.id') )
     
-    def __init__(self, name):
-       self.name = name
+    photos = relationship("Photo")
+    
 
 class User(Base):
     __tablename__ = "users"
@@ -34,11 +36,18 @@ class User(Base):
     username = Column(Text, unique=True)
     email = Column(Text, unique=True)
 
+    albums = relationship("Album", backref="owner")
+
+class Tag(Base):
+    __tablename__ = "tags"
+    id = Column(Integer, primary_key = True)
+    
+
 
 class Photo(Base):
     __tablename__ = 'photos'
     id = Column(Integer, primary_key = True)
-    
+    idalbum = Column(Integer, ForeignKey('albums.id'))
 
 
 class MyModel(Base):

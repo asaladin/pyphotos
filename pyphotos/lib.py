@@ -14,7 +14,9 @@ def myalbums(request):
         
 
 def get_user(request):
-    return authenticated_userid(request)
+    email = authenticated_userid(request)
+    user = DBSession.query(User).filter(User.email==email).one()
+    return user
     
     
 def get_username(request):

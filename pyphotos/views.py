@@ -21,8 +21,6 @@ import lib
 
 from io import BytesIO
 
-from boto.s3.key import Key
-
 import tasks
 import os
 
@@ -77,12 +75,11 @@ def listalbum(request):
     
     username = authenticated_userid(request)
     albumname = request.matchdict['albumname']
-    album = Album.m.find({'title': albumname}).one()
+    album = DBSession.query(Album).filter(Album.name == albumname).one()
     owner = album.owner
 
-    photos = Photo.m.find({'albumname': albumname})
-    photos=list(photos)
-    
+    photos = album.photos
+
     def url_for_thumbnail(url):
         if "/thumbnail/generate/" in url:
             return url
@@ -104,10 +101,10 @@ def newalbum(request):
         if 'visible' in request.POST:
             visible = True
         album = Album()
-        album.title = albumname
+        album.name = albumname
         album.owner = request.username       
         album.public = visible
-        album.m.save()
+        DBSession.add(album)
 
         return HTTPFound(location="/")
 
