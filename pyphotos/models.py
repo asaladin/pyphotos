@@ -55,8 +55,8 @@ class Photo(Base):
 
 class Ticket(Base):
     __tablename__ = 'tickets'
-    id = Column(Text, primary_key=True)
-    idalbum = Column(Integer, ForeignKey('albums.id'))
+    token = Column(Text, primary_key=True)
+    idalbum = Column(Integer, ForeignKey('albums.id'), nullable=False)
     creationDate = Column(DateTime)
     expirationDate = Column(DateTime)
     creatorid = Column(Integer, ForeignKey('users.id'))

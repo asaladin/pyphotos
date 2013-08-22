@@ -12,7 +12,7 @@ from pyphotos.models import User, Album
 from pyphotos.models import Photo
 
 
-import time
+import time, datetime
 import Image
 
 import hashlib
@@ -227,9 +227,16 @@ def createticket(request):
     albumname = request.matchdict['albumname']
     token = hashlib.sha1( "%s"%random.randint(1,1e99)).hexdigest()
     
-    request.db.tickets.insert({'owner':username, 'albumname': albumname, 'token': token } )
-    
-    
+    album = DBSession.query(Album).filter(Album.name==albumname).one()
+
+    ticket = Ticket()
+    ticket.token = token
+    ticket.creationdate = datetime.datetime.utcnow() 
+    ticket.creatorid = request.user.id
+    ticket.albumid = album.id    
+
+    DBSesison.add(ticket)    
+
     return {'token': token}
 
 @view_config(route_name="allowview")
@@ -237,8 +244,9 @@ def allowview(request):
     credential = request.matchdict['credential']
     
     try:
-        ticket = request.db.tickets.find_one({'token': credential})
-        albumname = ticket['albumname']
+        ticket = DBSession.query(Ticket).filter(Ticket.tocken==credential).one()
+        album = DBSession.query(Album).filter(Album.id==ticket.albumid).one()
+        albumname = album.name
     except KeyError:    
         return Response('ce ticket ne vaut rien!')
         
