@@ -4,6 +4,7 @@ from sqlalchemy import (
     Text,
     Boolean,
     ForeignKey,
+    DateTime
     )
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -26,7 +27,8 @@ class Album(Base):
     name = Column(Text, unique = True)
     public = Column(Boolean, default = False)
     ownerid = Column(Integer, ForeignKey('users.id') )
-    
+    creationdate = Column(DateTime)    
+
     photos = relationship("Photo")
     
 
@@ -35,6 +37,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(Text, unique=True)
     email = Column(Text, unique=True)
+    creationdate = Column(DateTime)
 
     albums = relationship("Album", backref="owner")
 
@@ -50,12 +53,12 @@ class Photo(Base):
     idalbum = Column(Integer, ForeignKey('albums.id'))
 
 
-class MyModel(Base):
-    __tablename__ = 'models'
-    id = Column(Integer, primary_key=True)
-    name = Column(Text, unique=True)
-    value = Column(Integer)
+class Ticket(Base):
+    __tablename__ = 'tickets'
+    id = Column(Text, primary_key=True)
+    idalbum = Column(Integer, ForeignKey('albums.id'))
+    creationDate = Column(DateTime)
+    expirationDate = Column(DateTime)
+    creatorid = Column(Integer, ForeignKey('users.id'))
+    authorized_email = Column(Text) #e-mail of the person allowed to view an album
 
-    def __init__(self, name, value):
-        self.name = name
-        self.value = value
