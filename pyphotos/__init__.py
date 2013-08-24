@@ -51,14 +51,7 @@ def main(global_config, **settings):
 
     #pyramid configurator (sessions, routes, ...)
     config = Configurator(root_factory=Root, settings=settings)
-    config.include(pyramid_beaker)   # for sessions
-
-
-    authentication_policy = AuthTktAuthenticationPolicy('seekrit', callback=ingroup, hashalg='sha512')
-    authorization_policy = ACLAuthorizationPolicy()
-    
-    config.set_authentication_policy(authentication_policy)
-    config.set_authorization_policy(authorization_policy)
+    config.include("pyramid_persona") 
     
    
     #create amazon S3 connection:
@@ -85,9 +78,9 @@ def main(global_config, **settings):
     config.add_route("listalbum", "/album/{albumname}/list", factory="pyphotos.resources.AlbumFactory")
     config.add_route("addphotoform", "/album/{albumname}/addphoto")
     config.add_route("view_thumbnail", "/thumbnail")
-    config.add_route("login", "/login")
-    config.add_route("browserid_login", "/login/browserid")
-    config.add_route("logout", "/logout")
+    #config.add_route("login", "/login")
+    #config.add_route("browserid_login", "/login/browserid")
+    #config.add_route("logout", "/logout")
     config.add_route("newalbum", "/newalbum")
     config.add_route("createticket", "/createticket/{albumname}", factory="pyphotos.resources.AlbumFactory")
     config.add_route("allowview", "/allow/{credential}")
@@ -145,8 +138,8 @@ def check_for_new_user(event):
         if event.request.url != event.request.route_url('new_user'):
             raise NewUser()
     else:
-        user = users.first()
-        event.request.username = user.username
+        theuser = users.first()
+        event.request.username = theuser.username
     
 
 def before_render(event):
