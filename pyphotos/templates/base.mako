@@ -80,8 +80,7 @@
 
 
          <div class='span9'>
-            <p> hello ${request.user}</p>
-             ${next.body()}
+           ${next.body()}
          </div>
 
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
