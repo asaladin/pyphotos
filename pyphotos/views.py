@@ -313,4 +313,8 @@ def forbidden_view(request):
         return Response("You must <a href='/login'>log in</a>")
     return Response("You are not allowed to view this ressource. <a href='/'>back home</a>")
  
- 
+
+
+def debug_login(request):
+    headers = remember(request, 'root@localhost')
+    return HTTPFound(location="/", headers=headers)    

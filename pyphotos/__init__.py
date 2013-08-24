@@ -25,6 +25,8 @@ from pyphotos.model import user
 
 from pyphotos.views import forbidden_view
 
+from pyphotos.storage import store 
+
 
 def ingroup(userid, request):
     return [userid]
@@ -42,7 +44,7 @@ def main(global_config, **settings):
     config.scan("pyphotos.model")
     M.init_mongo(engine=(settings.get('mongo.url'), settings.get('mongo.database')))
 
-    authentication_policy = AuthTktAuthenticationPolicy('seekrit', callback=ingroup)
+    authentication_policy = AuthTktAuthenticationPolicy('seekrit', callback=ingroup, hashalg='sha512')
     authorization_policy = ACLAuthorizationPolicy()
     
     config.set_authentication_policy(authentication_policy)
@@ -55,10 +57,12 @@ def main(global_config, **settings):
     config.registry.settings['db_conn'] = conn
     
     #create amazon S3 connection:
-    s3 = boto.connect_s3()
-    config.registry.settings['s3'] = s3
-    config.registry.settings['bucket'] = s3.get_bucket(settings['bucket_name'])
-    
+    #s3 = boto.connect_s3()
+    #config.registry.settings['s3'] = s3
+    #config.registry.settings['bucket'] = s3.get_bucket(settings['bucket_name'])
+
+    mystore = store.LocalStore("/tmp/photos")
+    config.registry.settings['mystore'] = mystore 
     
     config.add_subscriber(add_mongo_db, NewRequest)
     config.add_subscriber(before_render, BeforeRender)
@@ -98,7 +102,15 @@ def main(global_config, **settings):
     
     config.scan()
     
-    
+      
+    if config.registry.settings['pyphotos_debug_mode']:
+        #add a local user:
+         
+        from .views import debug_login
+        config.add_route('debug_login', '/login/debug')
+        config.add_view(debug_login, route_name='debug_login')
+ 
+ 
     return config.make_wsgi_app()
 
 from views import NewUser  
@@ -109,9 +121,8 @@ def add_mongo_db(event):
     db = settings['db_conn'][settings['db_name']]
     event.request.db = db
     event.request.fs = GridFS(db)
-    
-    event.request.s3 = settings['s3']
-    event.request.bucket = settings['bucket']
+
+    event.request.mystore = settings['mystore']
 
 from pyphotos.model import User    
 
@@ -119,7 +130,8 @@ def check_for_new_user(event):
     userid = authenticated_userid(event.request)
     if userid is None: return
     users = User.m.find({"browserid": userid})
-    if len(users) == 0:  #only redirect to new_user if the user is not in the database
+    print "users:", dir(users)
+    if users.count() == 0:  #only redirect to new_user if the user is not in the database
         #don't reraise the NewUser exception if the new_user view is going to be visited
         if event.request.url != event.request.route_url('new_user'):
             raise NewUser()
