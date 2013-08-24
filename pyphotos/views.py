@@ -51,11 +51,11 @@ def new_user(request):
     if request.method == "POST":
         user = User()
         username = request.POST['username']
-        
         user.username = username
+        user.email = authenticated_userid(request)
         
-        user.email = request.user
         DBSession.add(user)
+        log.debug("added new user %s"%user.username)
 
         return HTTPFound(request.route_path('index'))
     return {}    

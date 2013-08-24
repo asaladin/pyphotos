@@ -35,8 +35,8 @@ class Album(Base):
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
-    username = Column(Text, unique=True)
-    email = Column(Text, unique=True)
+    username = Column(Text, unique=True, nullable=False)
+    email = Column(Text, unique=True, nullable=False)
     creationdate = Column(DateTime)
 
     albums = relationship("Album", backref="owner")

@@ -17,6 +17,11 @@ import random
 from gridfs import GridFS
 import hashlib
 import lib
+import transaction
+
+import logging
+log = logging.getLogger(__name__)
+
 
 import boto
 
@@ -105,7 +110,15 @@ def main(global_config, **settings):
       
     if config.registry.settings['pyphotos_debug_mode']:
         #add a local user:
-         
+        nuser = DBSession.query(User).filter(User.email=="root@localhost").count()
+        if nuser==0:
+            user = User()
+            user.email = "root@localhost"
+            user.username = "root"
+            DBSession.add(user)
+            transaction.commit()
+  
+ 
         from .views import debug_login
         config.add_route('debug_login', '/login/debug')
         config.add_view(debug_login, route_name='debug_login')
@@ -126,7 +139,7 @@ def check_for_new_user(event):
     if userid is None: return
 
     users = DBSession.query(User).filter(User.email==userid)
-    print "users:", dir(users)
+    log.debug("number of users with this email: %i"%users.count())
     if users.count() == 0:  #only redirect to new_user if the user is not in the database
         #don't reraise the NewUser exception if the new_user view is going to be visited
         if event.request.url != event.request.route_url('new_user'):

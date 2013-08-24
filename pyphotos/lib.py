@@ -15,8 +15,11 @@ def myalbums(request):
 
 def get_user(request):
     email = authenticated_userid(request)
-    user = DBSession.query(User).filter(User.email==email).one()
-    return user
+    try: 
+        user = DBSession.query(User).filter(User.email==email).one()
+        return user
+    except:
+        return None
     
     
 def get_username(request):
