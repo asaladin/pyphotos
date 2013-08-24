@@ -51,6 +51,8 @@ class Photo(Base):
     __tablename__ = 'photos'
     id = Column(Integer, primary_key = True)
     idalbum = Column(Integer, ForeignKey('albums.id'))
+    annotation = Column(Text)  #caption
+    comments = relationship("PhotoComment")
 
 
 class Ticket(Base):
@@ -62,3 +64,11 @@ class Ticket(Base):
     creatorid = Column(Integer, ForeignKey('users.id'))
     authorized_email = Column(Text) #e-mail of the person allowed to view an album
 
+
+class PhotoComment(Base):
+    __tablename__ = "photocomments"
+    id = Column(Integer, primary_key=True)
+    idauthor = Column(Integer, ForeignKey("users.id"))
+    idphoto = Column(Integer, ForeignKey("photos.id")) 
+    content = Column(Text)
+    
