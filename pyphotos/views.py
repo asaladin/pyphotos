@@ -104,7 +104,7 @@ def newalbum(request):
             visible = True
         album = Album()
         album.name = albumname
-        album.owner = request.username       
+        album.owner = request.user
         album.public = visible
         DBSession.add(album)
 
