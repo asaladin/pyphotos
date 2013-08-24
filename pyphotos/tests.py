@@ -5,44 +5,88 @@ from pyramid import testing
 import pyphotos.models as model
 
 from pyphotos import views
+import transaction
+
+from sqlalchemy import create_engine
+
 
 import logging
 log = logging.getLogger(__name__)
 
 
+from .models import (
+    User,
+    Album,
+    Photo,
+    )
+
+    
+import models    
+
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, scoped_session
+
+from sqlalchemy.orm import (
+    scoped_session,
+    sessionmaker,
+    relationship,
+    )
+
+    
+    
+
 class ViewTests(unittest.TestCase):
     def setUp(self):
         self.config = testing.setUp()
-        model.init_mongo(engine=("mim://localhost/", "pyphotos_tests"))
         
-        model.User.m.remove()
-        model.Photo.m.remove()
-        model.Album.m.remove()
+        engine = create_engine('sqlite://')
+        models.Base.metadata.create_all(engine)
+        models.DBSession.configure(bind=engine)
         
-        album = model.Album()
-        album.title="holidays"
-        album.owner="me@localhost"
-        album.public=True
-        album.m.save()
+        with transaction.manager:        
+            album = Album()
+            album.name="holidays"
         
-        private_album=model.Album()
-        private_album.title="privatealbum"
-        private_album.owner="other@localhost"
-        private_album.public=False
-        private_album.m.save()
+            rootuser = User()
+            rootuser.username = "root"
+            rootuser.email = "root@localhost"
+            models.DBSession.add(rootuser)
+            transaction.commit()
+            
+            otheruser = User()
+            otheruser.username ="other"
+            otheruser.email = "other@localhost"
+            models.DBSession.add(otheruser)
+            transaction.commit()
+            
+            album.owner=rootuser
+            album.public=True
+            models.DBSession.add(album)
+            
+            album = Album()
+            album.name = "privatealbum"
+            album.owner = otheruser
+            album.public = False
+            models.DBSession.add(album)
+            
+       
         
         self.request = testing.DummyRequest()
+        self.request.user = otheruser
+
         
 
     def tearDown(self):
+        model.DBSession.remove()
         testing.tearDown()
+    
 
     def test_my_view_anonymous(self):
         
-        self.request.username = None
+        self.request.user = None
         resp = views.my_view(self.request)
         self.assertEqual(resp['project'], 'pyphotos')
-        titles = [a.title for a in resp['albums']]
+        titles = [a.name for a in resp['albums']]
         
         self.assertIn('holidays', titles )
         self.assertNotIn('privatealbum', titles)
@@ -52,15 +96,16 @@ class ViewTests(unittest.TestCase):
         
     def test_my_view_logged(self):
         
-        self.request.username = "other@localhost"
+        self.request.user = models.DBSession.query(User).filter(User.email == "other@localhost").one()
         resp = views.my_view(self.request)
-        mytitles = [a.title for a in resp['myalbums']]
+        mytitles = [a.name for a in resp['myalbums']]
         self.assertIn('privatealbum', mytitles)
 
-        
+
     
     def test_newalbum(self):
-        self.request.username = "owner@localhost"
+        self.request.username = "other@localhost"
+        
         self.request.POST['albumname'] = 'myawesomealbum'
         self.request.POST['visible'] = 'True'
         
@@ -69,9 +114,10 @@ class ViewTests(unittest.TestCase):
         from pyramid.httpexceptions import HTTPFound
         self.assertTrue(isinstance(response, HTTPFound))
         
-        albums = model.Album.m.find({"title": "myawesomealbum"}).all()
-        self.assertEqual(len(albums), 1)
+        #albums = model.Album.m.find({"title": "myawesomealbum"}).all()
+        albums = model.DBSession.query(Album).filter(Album.name=="myawesomealbum")
+        self.assertEqual(albums.count(), 1)
         
         
         
-        
+    

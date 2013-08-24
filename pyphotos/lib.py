@@ -3,12 +3,8 @@ from .models import DBSession, User, Album
 
 
 def myalbums(request):
-    try:
-       username = request.username
-       albums = DBSession.query(Album).filter(Album.owner == username).all()
-       
-    except AttributeError:
-        albums = []
+    username = request.user
+    albums = DBSession.query(Album).filter(Album.owner == username).all()
         
     return albums    
         
