@@ -9,6 +9,7 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 requires = [
             'pyramid', 
             'pyramid_debugtoolbar', 
+            'pyramid_persona',
             'boto',
             'paste',
             'pastescript',
@@ -17,16 +18,20 @@ requires = [
             'pyramid_beaker',
             'pyramid_tm',
             'velruse', 
-            'pymongo', 
             'PIL',
             'py-bcrypt', 
             'waitress',
             'pybrowserid',
             'celery',
+            'sqlalchemy',
+            'pyramid_tm',
+            'zope.sqlalchemy',
+            'transaction',
+            'SQLAlchemy',
            ]
 
 setup(name='pyphotos',
-      version='0.0',
+      version='0.1',
       description='pyphotos',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
@@ -48,6 +53,8 @@ setup(name='pyphotos',
       entry_points = """\
       [paste.app_factory]
       main = pyphotos:main
+      [console_scripts]
+      initialize_pyphotos_db = pyphotos.scripts.initializedb:main
       """,
       paster_plugins=['pyramid'],
       )

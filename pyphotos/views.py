@@ -1,4 +1,3 @@
-
 # encoding:  utf-8
 
 from pyramid.httpexceptions import HTTPFound
@@ -9,11 +8,11 @@ from pyramid.security import remember, forget, authenticated_userid
 
 from pyramid.view import view_config
 
-from pyphotos.model import User, Album
-from pyphotos.model import Photo
+from pyphotos.models import User, Album
+from pyphotos.models import Photo
 
 
-import time
+import time, datetime
 import Image
 
 import hashlib
@@ -22,13 +21,18 @@ import lib
 
 from io import BytesIO
 
-from boto.s3.key import Key
-
 import tasks
 import os
 
 import logging
 log = logging.getLogger(__name__)
+
+
+from .models import (
+    DBSession,
+    User,
+    Album,
+    )
 
 
 class NewUser(Exception): pass 
@@ -47,15 +51,11 @@ def new_user(request):
     if request.method == "POST":
         user = User()
         username = request.POST['username']
-               
-        dup_users = User.m.find('username')
-        if len(dup_users)!=0:
-            return {}
-        
         user.username = username
+        user.email = authenticated_userid(request)
         
-        user.browserid = request.user
-        user.m.save()
+        DBSession.add(user)
+        log.debug("added new user %s"%user.username)
 
         return HTTPFound(request.route_path('index'))
     return {}    
@@ -64,7 +64,7 @@ def new_user(request):
 # main page
 @view_config(renderer='pyphotos:templates/index.mako', route_name="index")
 def my_view(request):
-    albums = Album.m.find({'public':True})
+    albums = DBSession.query(Album).filter(Album.public == True).all()
     return {'project':'pyphotos', 'albums': albums, 'myalbums': lib.myalbums(request)}
 
 
@@ -75,12 +75,11 @@ def listalbum(request):
     
     username = authenticated_userid(request)
     albumname = request.matchdict['albumname']
-    album = Album.m.find({'title': albumname}).one()
+    album = DBSession.query(Album).filter(Album.name == albumname).one()
     owner = album.owner
 
-    photos = Photo.m.find({'albumname': albumname})
-    photos=list(photos)
-    
+    photos = album.photos
+
     def url_for_thumbnail(url):
         if "/thumbnail/generate/" in url:
             #we need to generate a thumbnail, so we just let the browser call the appropriate view
@@ -104,10 +103,10 @@ def newalbum(request):
         if 'visible' in request.POST:
             visible = True
         album = Album()
-        album.title = albumname
+        album.name = albumname
         album.owner = request.username       
         album.public = visible
-        album.m.save()
+        DBSession.add(album)
 
         return HTTPFound(location="/")
 
@@ -184,44 +183,44 @@ def addphotoform(request):
     return {}
 
 
-#page showing login options
-@view_config(route_name="login", renderer="pyphotos:templates/login.mako")
-def login(request):
-    userid = authenticated_userid(request)
-    #browserid reloads the current page, so simply go back to home if the user has logged in
-    if userid is not None:
-        try:
-            user = User.m.find({'browserid':userid}).one()
-            print user
-        except:
-            return HTTPFound(location='/newuser')
+##page showing login options
+#@view_config(route_name="login", renderer="pyphotos:templates/login.mako")
+#def login(request):
+    #userid = authenticated_userid(request)
+    ##browserid reloads the current page, so simply go back to home if the user has logged in
+    #if userid is not None:
+        #try:
+            #user = User.m.find({'browserid':userid}).one()
+            #print user
+        #except:
+            #return HTTPFound(location='/newuser')
         
-        return HTTPFound(location="/")
+        #return HTTPFound(location="/")
     
-    return {}
+    #return {}
     
 
-#simply logout
-@view_config(route_name='logout')
-def logout(request):
-    headers = forget(request)
-    request.session.flash("You have logged out")
-    return HTTPFound(location='/', headers=headers)
+##simply logout
+#@view_config(route_name='logout')
+#def logout(request):
+    #headers = forget(request)
+    #request.session.flash("You have logged out")
+    #return HTTPFound(location='/', headers=headers)
 
-#browserid login:
-@view_config(route_name="browserid_login")
-def bid_login(request):
-    assertion = request.POST['assertion']
-    print "assertion:", assertion
-    import browserid
-    import browserid.errors
-    try:
-        data = browserid.verify(assertion, request.registry.settings['persona.siteid'])
-    except (ValueError, browserid.errors.TrustError):
-        raise HTTPBadRequest('invalid assertion')
+##browserid login:
+#@view_config(route_name="browserid_login")
+#def bid_login(request):
+    #assertion = request.POST['assertion']
+    #print "assertion:", assertion
+    #import browserid
+    #import browserid.errors
+    #try:
+        #data = browserid.verify(assertion, request.registry.settings['persona.siteid'])
+    #except (ValueError, browserid.errors.TrustError):
+        #raise HTTPBadRequest('invalid assertion')
 
-    headers = remember(request, data['email'])
-    return HTTPFound(location="/", headers=headers)    
+    #headers = remember(request, data['email'])
+    #return HTTPFound(location="/", headers=headers)    
 
 
     
@@ -231,9 +230,16 @@ def createticket(request):
     albumname = request.matchdict['albumname']
     token = hashlib.sha1( "%s"%random.randint(1,1e99)).hexdigest()
     
-    request.db.tickets.insert({'owner':username, 'albumname': albumname, 'token': token } )
-    
-    
+    album = DBSession.query(Album).filter(Album.name==albumname).one()
+
+    ticket = Ticket()
+    ticket.token = token
+    ticket.creationdate = datetime.datetime.utcnow() 
+    ticket.creatorid = request.user.id
+    ticket.albumid = album.id    
+
+    DBSesison.add(ticket)    
+
     return {'token': token}
 
 @view_config(route_name="allowview")
@@ -241,8 +247,9 @@ def allowview(request):
     credential = request.matchdict['credential']
     
     try:
-        ticket = request.db.tickets.find_one({'token': credential})
-        albumname = ticket['albumname']
+        ticket = DBSession.query(Ticket).filter(Ticket.tocken==credential).one()
+        album = DBSession.query(Album).filter(Album.id==ticket.albumid).one()
+        albumname = album.name
     except KeyError:    
         return Response('ce ticket ne vaut rien!')
         

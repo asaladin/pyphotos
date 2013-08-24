@@ -2,7 +2,7 @@ import unittest
 
 from pyramid import testing
 
-import pyphotos.model as model
+import pyphotos.models as model
 
 from pyphotos import views
 

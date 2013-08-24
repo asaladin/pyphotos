@@ -1,12 +1,11 @@
 from  pyramid.security import authenticated_userid
-from model import User, Album
+from .models import DBSession, User, Album
 
 
 def myalbums(request):
     try:
        username = request.username
-       albums = Album.m.find({'owner': username})
-       albums = list(albums)
+       albums = DBSession.query(Album).filter(Album.owner == username).all()
        
     except AttributeError:
         albums = []
@@ -15,7 +14,12 @@ def myalbums(request):
         
 
 def get_user(request):
-    return authenticated_userid(request)
+    email = authenticated_userid(request)
+    try: 
+        user = DBSession.query(User).filter(User.email==email).one()
+        return user
+    except:
+        return None
     
     
 def get_username(request):
