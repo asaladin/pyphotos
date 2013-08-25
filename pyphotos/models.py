@@ -51,6 +51,8 @@ class Photo(Base):
     __tablename__ = 'photos'
     id = Column(Integer, primary_key = True)
     idalbum = Column(Integer, ForeignKey('albums.id'))
+    filekey = Column(Text) #S3 key, file path, ...
+    storagetype = Column(Text) #type of storage (S3, file system, ...)
     annotation = Column(Text)  #caption
     comments = relationship("PhotoComment")
 
