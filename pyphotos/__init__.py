@@ -76,7 +76,7 @@ def main(global_config, **settings):
     
     config.add_route("index", "/")
     config.add_route("listalbum", "/album/{albumname}/list", factory="pyphotos.resources.AlbumFactory")
-    config.add_route("addphotoform", "/album/{albumname}/addphoto")
+    config.add_route("addphotoform", "/album/{albumname}/addphoto", factory="pyphotos.resources.AlbumFactory")
     config.add_route("view_thumbnail", "/thumbnail")
     #config.add_route("login", "/login")
     #config.add_route("browserid_login", "/login/browserid")

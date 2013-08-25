@@ -318,7 +318,7 @@ def admin(request):
 def forbidden_view(request):
     if request.user is None:
         return Response("You must <a href='/login'>log in</a>")
-    return Response("You are not allowed to view this ressource. <a href='/'>back home</a>")
+    return Response("<html><body>You are not allowed to view this ressource. <a href='/'>back home</a></body></html>")
  
 
 

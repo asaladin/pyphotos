@@ -25,7 +25,7 @@ class AlbumFactory(object):
         
         album = DBSession.query(Album).filter(Album.name==albumname).one()
                 
-        owner = album.owner.username
+        owner = album.owner.email
         
         self.__acl__.append( (Allow, owner, 'createticket'), )
         self.__acl__.append( (Allow, owner, 'view'), )

@@ -7,8 +7,8 @@
 <h2>album: ${albumname}</h2>
 </div>
 
-%if owner == username:
-<a href="addphoto">Ajouter une photo</a>
+%if owner.email == username:
+<a href="addphoto">Add a new photo</a>
 <a href="/createticket/${albumname}">Inviter quelqu'un</a>
 %endif
 
@@ -26,13 +26,13 @@ def grouper(n, iterable, fillvalue=None):
 %for group_photo in grouper(2 , photos):
 <div class="row-fluid">
     %for photo in group_photo:
-    %if photo is not None:
-    <div class="span4">
-       <a href="${request.route_url('fullsize', albumname=photo.albumname, filename=photo.filename)}"> 
-          <img src="${photo.thumbnailpath}" />  ${photo.filename} 
-       </a> 
-    </div><!--/span-->
-    %endif
+        %if photo is not None:
+        <div class="span4">
+           <a href="${request.route_url('fullsize', albumname=photo.albumname, filename=photo.filename)}"> 
+               <img src="${photo.thumbnailpath}" />  ${photo.filename} 
+           </a> 
+        </div><!--/span4-->
+        %endif
     %endfor
 
 </div><!--/row-->
