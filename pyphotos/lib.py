@@ -1,12 +1,6 @@
 from  pyramid.security import authenticated_userid
 from .models import DBSession, User, Album
 
-
-def myalbums(request):
-    username = request.user
-    albums = DBSession.query(Album).filter(Album.owner == username).all()
-        
-    return albums    
         
 
 def get_user(request):

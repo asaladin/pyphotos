@@ -70,7 +70,7 @@
                      <li><a href='/newalbum'>Create an album</a></li>
                     %endif
                      <li class="nav-header">Your albums</li>
-                     %for a in myalbums[:5]:
+                     %for a in request.user.albums[:5]:
                          <li><a href="/album/${a.name}/list">${a.name}</a></li>
                      %endfor
                  </ul>

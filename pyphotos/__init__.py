@@ -63,7 +63,6 @@ def main(global_config, **settings):
     config.registry.settings['mystore'] = mystore 
     
     config.add_subscriber(add_s3, NewRequest)
-    config.add_subscriber(before_render, BeforeRender)
     config.add_subscriber(check_for_new_user, NewRequest)
     
     #add root account if none present:
@@ -86,7 +85,7 @@ def main(global_config, **settings):
     config.add_route("allowview", "/allow/{credential}")
     config.add_route('myalbums', '/myalbums')
     config.add_route('fullsize', '/fullsize/{albumname}/{filename}', factory="pyphotos.resources.AlbumFactory")
-    config.add_route('new_user', "/newuser")
+    #config.add_route('new_user', "/newuser")
     config.add_route('import_s3', '/import/s3')
     config.add_route('generate_thumbnail', '/thumbnail/generate/{albumname}/{filename}')
     config.add_route('admin', '/admin')
@@ -135,11 +134,6 @@ def check_for_new_user(event):
     log.debug("number of users with this email: %i"%users.count())
     if users.count() == 0:  #only redirect to new_user if the user is not in the database
         #don't reraise the NewUser exception if the new_user view is going to be visited
-        if event.request.url != event.request.route_url('new_user'):
+        #if event.request.url != event.request.route_url('new_user'):
             raise NewUser()
-    
-
-def before_render(event):
-    event["myalbums"] = lib.myalbums(event['request'])
-    
     

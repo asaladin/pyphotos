@@ -19,6 +19,8 @@ import hashlib
 import random
 import lib
 
+import transaction
+
 from io import BytesIO
 
 import tasks
@@ -41,13 +43,8 @@ def getBucketName(request):
     return request.registry.settings['bucket_name']
 
 
-@view_config(context=NewUser)
+@view_config(context=NewUser, renderer="pyphotos:templates/newuser.mako")
 def new_user_exception(request):
-    return HTTPFound(request.route_path('new_user'))
-    
-@view_config(route_name="new_user", renderer="pyphotos:templates/newuser.mako")
-def new_user(request):
-    
     if request.method == "POST":
         user = User()
         username = request.POST['username']
@@ -56,16 +53,18 @@ def new_user(request):
         
         DBSession.add(user)
         log.debug("added new user %s"%user.username)
+        transaction.commit()
 
-        return HTTPFound(request.route_path('index'))
+        return HTTPFound(request.url)
     return {}    
+    
         
 
 # main page
 @view_config(renderer='pyphotos:templates/index.mako', route_name="index")
 def my_view(request):
     albums = DBSession.query(Album).filter(Album.public == True).all()
-    return {'project':'pyphotos', 'albums': albums, 'myalbums': lib.myalbums(request)}
+    return {'project':'pyphotos', 'albums': albums}
 
 
 #this is the album main view
@@ -107,6 +106,7 @@ def newalbum(request):
         album.owner = request.user
         album.public = visible
         DBSession.add(album)
+        transaction.commit()
 
         return HTTPFound(location="/")
 
@@ -258,7 +258,7 @@ def allowview(request):
     else:    
         request.session['tickets'] = { albumname: credential }
         
-    request.session.flash(u"album %s ajouté!"%albumname )
+    request.session.flash(u"album %s added!"%albumname )
         
         
     return HTTPFound(location='/')
