@@ -71,7 +71,7 @@
                     %endif
                      <li class="nav-header">Your albums</li>
                      %for a in myalbums[:5]:
-                         <li><a href="/album/${a['title']}/list">${a['title']}</a></li>
+                         <li><a href="/album/${a.name}/list">${a.name}</a></li>
                      %endfor
                  </ul>
              </div><!--/.well -->
