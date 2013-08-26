@@ -3,7 +3,7 @@ from pyphotos.models import Photo, User, Album
 
 from io import BytesIO
 from boto.s3.key import Key
-import Image
+from PIL import Image
 
 @celery.task
 def foo():

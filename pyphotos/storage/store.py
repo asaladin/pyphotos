@@ -1,3 +1,4 @@
+
 class Store(object):
     def __init__(self):
        pass
@@ -26,4 +27,10 @@ class LocalStore(Store):
        f.write(content)
        f.close() 
 
-
+    @staticmethod
+    def genkey(album, filename, thumbnail=False):
+        if thumbnail:
+           key = os.path.join(album, "thumbnail",  filename)
+        else:
+           key = os.path.join(album, filename)
+        return key

@@ -62,7 +62,7 @@ def main(global_config, **settings):
     mystore = store.LocalStore("/tmp/photos")
     config.registry.settings['mystore'] = mystore 
     
-    config.add_subscriber(add_s3, NewRequest)
+    config.add_subscriber(add_store, NewRequest)
     config.add_subscriber(check_for_new_user, NewRequest)
     
     #add root account if none present:
@@ -76,7 +76,7 @@ def main(global_config, **settings):
     config.add_route("index", "/")
     config.add_route("listalbum", "/album/{albumname}/list", factory="pyphotos.resources.AlbumFactory")
     config.add_route("addphotoform", "/album/{albumname}/addphoto", factory="pyphotos.resources.AlbumFactory")
-    config.add_route("view_thumbnail", "/thumbnail")
+    config.add_route("view_thumbnail", "/thumbnail/{albumname}/{filename}", factory="pyphotos.resources.AlbumFactory")
     #config.add_route("login", "/login")
     #config.add_route("browserid_login", "/login/browserid")
     #config.add_route("logout", "/logout")
@@ -120,7 +120,7 @@ def main(global_config, **settings):
 
 from views import NewUser  
     
-def add_s3(event):
+def add_store(event):
     settings = event.request.registry.settings
 
     event.request.mystore = settings['mystore']

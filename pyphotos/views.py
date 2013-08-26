@@ -13,7 +13,7 @@ from pyphotos.models import Photo
 
 
 import time, datetime
-import Image
+from PIL import Image
 
 import hashlib
 import random
@@ -79,18 +79,20 @@ def listalbum(request):
 
     photos = album.photos
 
-    def url_for_thumbnail(url):
-        if "/thumbnail/generate/" in url:
-            #we need to generate a thumbnail, so we just let the browser call the appropriate view
-            return url
-        else:
-            #let's generate a signed URL for S3
-            return request.s3.generate_url(3600 , "GET" ,getBucketName(request), url )
+    #def url_for_thumbnail(url):
+        #if "/thumbnail/generate/" in url:
+            ##we need to generate a thumbnail, so we just let the browser call the appropriate view
+            #return url
+        #else:
+            ##let's generate a signed URL for S3
+            #return request.s3.generate_url(3600 , "GET" ,getBucketName(request), url )
 
     
     for p in photos:
-        p.url = request.s3.generate_url(3600 , "GET" ,getBucketName(request),'%s/%s'%(albumname,p.filename) )
-        p.thumbnailpath = url_for_thumbnail(p.thumbnailpath)
+        p.url = "/not/found/yet"
+        p.thumbnailpath = request.route_path("view_thumbnail", albumname=albumname, filename=p.filename)
+        #p.url = request.s3.generate_url(3600 , "GET" ,getBucketName(request),'%s/%s'%(albumname,p.filename) )
+        #p.thumbnailpath = url_for_thumbnail(p.thumbnailpath)
     
     return {'albumname': albumname, 'photos': photos, 'username': username, 'owner':owner}
 
@@ -118,10 +120,17 @@ def newalbum(request):
 
 @view_config(route_name="view_thumbnail")
 def thumbnail(request):
-    fid = request.GET['filename']
-    fid2 = request.db.fs.files.find_one({'filename':fid})['_id']
-    fich = request.fs.get(fid2)
-    return Response(fich.read(),content_type="image/jpeg")
+    
+    albumname = request.matchdict['albumname']
+    filename = request.matchdict['filename']
+    thumbkey = request.mystore.genkey(albumname, filename, thumbnail = True)
+    return Response(request.mystore[thumbkey], content_type="image/jpeg")
+    
+    #old s3 stuff
+    #fid = request.GET['filename']
+    #fid2 = request.db.fs.files.find_one({'filename':fid})['_id']
+    #fich = request.fs.get(fid2)
+    #return Response(fich.read(),content_type="image/jpeg")
 
 
 @view_config(route_name='generate_thumbnail')
@@ -148,9 +157,11 @@ def addphotoform(request):
         filename = request.POST['jpg'].filename
         inputfile = request.POST['jpg'].file
 
-        #store the photo in S3
-        key = request.bucket.new_key("%s/%s"%(albumname,filename))
-        key.set_contents_from_file(inputfile)
+        
+        #put the photo in the store
+        key = request.mystore.genkey(albumname, filename)
+        request.mystore[key] = inputfile.read()
+        
         
         #create the thumbnail
         inputfile.seek(0)
@@ -168,17 +179,25 @@ def addphotoform(request):
         
         #store the thumbnail into S3:
         imagefile.seek(0)
-        key = request.bucket.new_key("/thumbnails/%s/%s"%(albumname,filename))
-        key.set_contents_from_file(imagefile)
+        
+        thumbkey = request.mystore.genkey(albumname, filename, thumbnail = True)
+        request.mystore[thumbkey] = imagefile.read()
+        
+        #key = request.bucket.new_key("/thumbnails/%s/%s"%(albumname,filename))
+        #key.set_contents_from_file(imagefile)
 
         #store the new photo in the database
+        
+        album = DBSession.query(Album).filter(Album.name==albumname).one()
+        
         photo = Photo()
-        photo.albumname = albumname
+        photo.album = album
+        photo.filekey = key
+        photo.thumbkey = thumbkey
         photo.filename = filename
-        photo.thumbnailpath = "/thumbnails/%s/%s"%(albumname,filename)
-        photo.m.save()
+        DBSession.add(photo)
                 
-        return HTTPFound("/album/%s/addphoto"%albumname)
+        return HTTPFound(request.route_path("addphotoform",albumname=albumname))
         
     return {}
 
@@ -238,7 +257,7 @@ def createticket(request):
     ticket.creatorid = request.user.id
     ticket.albumid = album.id    
 
-    DBSesison.add(ticket)    
+    DBSession.add(ticket)    
 
     return {'token': token}
 

@@ -29,7 +29,7 @@ class Album(Base):
     ownerid = Column(Integer, ForeignKey('users.id') )
     creationdate = Column(DateTime)    
 
-    photos = relationship("Photo")
+    photos = relationship("Photo", backref="album")
     
 
 class User(Base):
@@ -51,8 +51,11 @@ class Photo(Base):
     __tablename__ = 'photos'
     id = Column(Integer, primary_key = True)
     idalbum = Column(Integer, ForeignKey('albums.id'))
+    filename = Column(Text) # original filename (like DSC_73222.JPG)
     filekey = Column(Text) #S3 key, file path, ...
     storagetype = Column(Text) #type of storage (S3, file system, ...)
+    thumbkey = Column(Text) #path for the thumbnail
+    thumbtype = Column(Text) #S3, filesystem, ...
     annotation = Column(Text)  #caption
     comments = relationship("PhotoComment")
 
