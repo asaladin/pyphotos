@@ -28,7 +28,7 @@ def grouper(n, iterable, fillvalue=None):
     %for photo in group_photo:
         %if photo is not None:
         <div class="span4">
-           <a href="${request.route_url('fullsize', albumname=photo.album.name, filename=photo.filekey)}"> 
+           <a href="${request.route_url('fullsize', albumname=photo.album.name, filename=photo.filename)}"> 
                <img src="${photo.thumbnailpath}" />  ${photo.filekey} 
            </a> 
         </div><!--/span4-->

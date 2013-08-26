@@ -286,7 +286,11 @@ def allowview(request):
 def fullsize_view(request):
     albumname = request.matchdict['albumname']
     filename = request.matchdict['filename']
-    url = request.s3.generate_url(3600 , "GET" ,getBucketName(request),'%s/%s'%(albumname,filename) )
+    
+    thumbkey = request.mystore.genkey(albumname, filename)
+    return Response(request.mystore[thumbkey], content_type="image/jpeg")
+    
+    #url = request.s3.generate_url(3600 , "GET" ,getBucketName(request),'%s/%s'%(albumname,filename) )
     return {'url': url}
 
     
