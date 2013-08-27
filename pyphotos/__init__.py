@@ -53,13 +53,7 @@ def main(global_config, **settings):
     config = Configurator(root_factory=Root, settings=settings)
     config.include("pyramid_persona") 
     
-   
-    #create amazon S3 connection:
-    #s3 = boto.connect_s3()
-    #config.registry.settings['s3'] = s3
-    #config.registry.settings['bucket'] = s3.get_bucket(settings['bucket_name'])
-
-    mystore = store.LocalStore("/tmp/photos")
+    mystore = store.S3Store("asphotos")
     config.registry.settings['mystore'] = mystore 
     
     config.add_subscriber(add_store, NewRequest)
