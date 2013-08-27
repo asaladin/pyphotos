@@ -38,8 +38,8 @@ class LocalStore(Store):
            key = os.path.join(album, filename)
         return key
      
-    def fullsize_url(self, albumname, filename):
-        url="/fullsize/%s/%s"%(albumname, filename)
+    def fullsize_url(self, filekey):
+        url="/fullsize/%s"%(filekey)
         return url
 
 class S3Store(Store):
@@ -67,8 +67,13 @@ class S3Store(Store):
             key = '%s/%s'%(album, filename)
         return key
     
-    def fullsize_url(self, albumname, filename):
-        url = self.s3.generate_url(3600 , "GET" ,  self.bucketname,'%s/%s'%(albumname,filename) )
+    def fullsize_url(self, filekey):
+        url = self.s3.generate_url(3600 , "GET" ,  self.bucketname,filekey )
         return url
+        
+    def list(self, albumname):
+        return self.bucket.list(albumname)
+        
+        
     
     

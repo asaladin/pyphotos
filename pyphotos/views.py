@@ -91,7 +91,7 @@ def listalbum(request):
     for p in photos:
         p.url = "/not/found/yet"
         p.thumbnailpath = request.route_path("view_thumbnail", albumname=albumname, filename=p.filename)
-        p.fullsizeurl = request.mystore.fullsize_url(albumname, p.filename)
+        p.fullsizeurl = request.mystore.fullsize_url(p.filekey)
         
     return {'albumname': albumname, 'photos': photos, 'username': username, 'owner':owner}
 
@@ -244,6 +244,9 @@ def allowview(request):
 def fullsize_view(request):
     albumname = request.matchdict['albumname']
     filename = request.matchdict['filename']
+    
+    album = DBSession.query(Album).filter(Album.name==albumname).one()
+    photo = DBSession.query(Photo).filter(Photo.album==album).one()
 
     url = request.mystore.fullsize_url(albumname, filename)
     return {'url': url}
@@ -255,29 +258,31 @@ def import_s3(request):
         if 'dirname' in request.POST:
             dirname = request.POST['dirname']
             albumname = request.POST['albumname']
-            albumpublic = request
-            
+             
             album = Album()
-            album.title = albumname
-            album.owner = authenticated_userid(request)
+            album.name = albumname
+            album.owner = request.user
             visible = False
             if 'visible' in request.POST:
                 visible = True
             album.public = visible
             
-            album.m.save()
+            DBSession.add(album)
             
-            listdir = request.bucket.list(dirname)
+            listdir = request.mystore.list(dirname)
             for f in listdir:
                 photo = Photo()
                 filename = f.name.strip(albumname+'/')
                 
                 photo.filename = filename
                 photo.albumname = albumname
+                photo.album = album
+                photo.filekey = request.mystore.genkey(dirname, filename)
+                log.debug('************* filekey: ' + photo.filekey)
                 
-                photo.thumbnailpath="/thumbnail/generate/"+ f.name
-                log.debug("thumbnail path:", photo.thumbnailpath)
-                photo.m.save()
+                photo.thumbkey="/thumbnail/generate/"+ f.name
+                log.debug("thumbnail path: %s"%photo.thumbkey)
+                DBSession.add(photo)
             
             
     return Response("not imported yet")
