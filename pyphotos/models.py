@@ -24,9 +24,11 @@ Base = declarative_base()
 class Album(Base):
     __tablename__ = "albums"
     id = Column(Integer, primary_key=True)
-    name = Column(Text, unique = True)
+    name = Column(Text, unique = True, nullable=False)
     public = Column(Boolean, default = False)
     ownerid = Column(Integer, ForeignKey('users.id') )
+    #from relationship in User:
+    #owner: User object
     creationdate = Column(DateTime)    
 
     photos = relationship("Photo", backref="album")
