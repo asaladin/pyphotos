@@ -200,47 +200,6 @@ def addphotoform(request):
         
     return {}
 
-
-##page showing login options
-#@view_config(route_name="login", renderer="pyphotos:templates/login.mako")
-#def login(request):
-    #userid = authenticated_userid(request)
-    ##browserid reloads the current page, so simply go back to home if the user has logged in
-    #if userid is not None:
-        #try:
-            #user = User.m.find({'browserid':userid}).one()
-            #print user
-        #except:
-            #return HTTPFound(location='/newuser')
-        
-        #return HTTPFound(location="/")
-    
-    #return {}
-    
-
-##simply logout
-#@view_config(route_name='logout')
-#def logout(request):
-    #headers = forget(request)
-    #request.session.flash("You have logged out")
-    #return HTTPFound(location='/', headers=headers)
-
-##browserid login:
-#@view_config(route_name="browserid_login")
-#def bid_login(request):
-    #assertion = request.POST['assertion']
-    #print "assertion:", assertion
-    #import browserid
-    #import browserid.errors
-    #try:
-        #data = browserid.verify(assertion, request.registry.settings['persona.siteid'])
-    #except (ValueError, browserid.errors.TrustError):
-        #raise HTTPBadRequest('invalid assertion')
-
-    #headers = remember(request, data['email'])
-    #return HTTPFound(location="/", headers=headers)    
-
-
     
 @view_config(route_name="createticket", renderer='pyphotos:templates/displayticket.mako', permission='createticket')
 def createticket(request):
