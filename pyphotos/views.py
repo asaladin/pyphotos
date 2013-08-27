@@ -91,9 +91,8 @@ def listalbum(request):
     for p in photos:
         p.url = "/not/found/yet"
         p.thumbnailpath = request.route_path("view_thumbnail", albumname=albumname, filename=p.filename)
-        #p.url = request.s3.generate_url(3600 , "GET" ,getBucketName(request),'%s/%s'%(albumname,p.filename) )
-        #p.thumbnailpath = url_for_thumbnail(p.thumbnailpath)
-    
+        p.fullsizeurl = request.mystore.fullsize_url(albumname, p.filename)
+        
     return {'albumname': albumname, 'photos': photos, 'username': username, 'owner':owner}
 
 @view_config(route_name="newalbum", renderer="pyphotos:templates/newalbum.mako", permission="create")
@@ -286,11 +285,8 @@ def allowview(request):
 def fullsize_view(request):
     albumname = request.matchdict['albumname']
     filename = request.matchdict['filename']
-    
-    thumbkey = request.mystore.genkey(albumname, filename)
-    return Response(request.mystore[thumbkey], content_type="image/jpeg")
-    
-    #url = request.s3.generate_url(3600 , "GET" ,getBucketName(request),'%s/%s'%(albumname,filename) )
+
+    url = request.mystore.fullsize_url(albumname, filename)
     return {'url': url}
 
     

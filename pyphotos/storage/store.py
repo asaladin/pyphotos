@@ -37,10 +37,15 @@ class LocalStore(Store):
         else:
            key = os.path.join(album, filename)
         return key
+     
+    def fullsize_url(self, albumname, filename):
+        url="/fullsize/%s/%s"%(albumname, filename)
+        return url
 
 class S3Store(Store):
     def __init__(self, bucketname):
         #create amazon S3 connection:
+        self.bucketname = bucketname
         self.s3 = boto.connect_s3()
         self.bucket = self.s3.get_bucket(bucketname)
         
@@ -61,4 +66,9 @@ class S3Store(Store):
         else:
             key = '%s/%s'%(album, filename)
         return key
+    
+    def fullsize_url(self, albumname, filename):
+        url = self.s3.generate_url(3600 , "GET" ,  self.bucketname,'%s/%s'%(albumname,filename) )
+        return url
+    
     
