@@ -2,7 +2,6 @@ import unittest
 
 from pyramid import testing
 
-import pyphotos.models as model
 
 from pyphotos import views
 import transaction
@@ -33,15 +32,17 @@ from sqlalchemy.orm import (
     )
 
     
-    
 
 class ViewTests(unittest.TestCase):
     def setUp(self):
         self.config = testing.setUp()
         
-        engine = create_engine('sqlite://')
+        engine = create_engine('sqlite:///', echo=True)
+        #engine = create_engine('sqlite:///')
+        #models.Base.metadata.drop_all(engine)
         models.Base.metadata.create_all(engine)
         models.DBSession.configure(bind=engine)
+        self.engine= engine
         
         with transaction.manager:        
             album = Album()
@@ -77,7 +78,9 @@ class ViewTests(unittest.TestCase):
         
 
     def tearDown(self):
-        model.DBSession.remove()
+        log.debug("running tearDown")
+        models.DBSession.remove()
+        #models.Base.metadata.drop_all(self.engine)
         testing.tearDown()
     
 
@@ -115,9 +118,37 @@ class ViewTests(unittest.TestCase):
         self.assertTrue(isinstance(response, HTTPFound))
         
         #albums = model.Album.m.find({"title": "myawesomealbum"}).all()
-        albums = model.DBSession.query(Album).filter(Album.name=="myawesomealbum")
+        albums = models.DBSession.query(Album).filter(Album.name=="myawesomealbum")
         self.assertEqual(albums.count(), 1)
         
+
+class FunctionalTests(unittest.TestCase):
+    def setUp(self):
+        
+        #engine = create_engine('sqlite:///', echo=True)
+        engine = create_engine('sqlite:///')
+        models.Base.metadata.create_all(engine)
+        models.DBSession.configure(bind=engine)
+        
+        #from pyphotos import main
+        #app = main({})
+        import pyramid.paster
+        app = pyramid.paster.get_app('testing.ini')
+        #from webtest import TestApp
+        #self.testapp = TestApp(app)
+    
+    
+    def tearDown(self):
+        models.DBSession.remove()
+        testing.tearDown()
+    
+    def test_initial_database_setup(self):
+        users = models.DBSession.query(models.User).all()
+        
+        self.assertEqual(len(users),1)
         
         
+    #def test_my_view_anonymous(self):
+       #resp = self.testapp.get("/", status=200)
+       #self.assertTrue(False)
     

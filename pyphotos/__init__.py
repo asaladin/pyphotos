@@ -44,10 +44,11 @@ def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
 
-    #set up sqlalchemy:
-    engine = engine_from_config(settings, 'sqlalchemy.')
-    DBSession.configure(bind=engine)
-    Base.metadata.bind = engine
+    if settings["sqlalchemy.url"]!="testing":
+        #set up sqlalchemy:
+        engine = engine_from_config(settings, 'sqlalchemy.')
+        DBSession.configure(bind=engine)
+        Base.metadata.bind = engine
 
     #pyramid configurator (sessions, routes, ...)
     config = Configurator(root_factory=Root, settings=settings)
