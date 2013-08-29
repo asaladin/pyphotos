@@ -74,6 +74,13 @@ class S3Store(Store):
     def list(self, albumname):
         return self.bucket.list(albumname)
         
-        
+def storefactory(settings):
+    store_type = settings['store.type']
+    if store_type == "local":
+        return LocalStore(settings['store.dir'])
+    elif store_type == "s3":
+        return S3Store(settings['store.bucket'])
+    else:
+        raise RuntimeError("cannot determine the store type")
     
     

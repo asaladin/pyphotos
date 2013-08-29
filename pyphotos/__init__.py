@@ -54,7 +54,9 @@ def main(global_config, **settings):
     config = Configurator(root_factory=Root, settings=settings)
     config.include("pyramid_persona") 
     
-    mystore = store.S3Store("asphotos")
+    
+    mystore = store.storefactory(settings)
+        
     config.registry.settings['mystore'] = mystore 
     
     config.add_subscriber(add_store, NewRequest)
@@ -95,7 +97,7 @@ def main(global_config, **settings):
         log.debug("added admin user")
 
       
-    if config.registry.settings['pyphotos_debug_mode']:
+    if settings['pyphotos_debug_mode']:
         #add debug views:
         log.debug("adding debug login view")
         from .views import debug_login
