@@ -97,8 +97,9 @@ def main(global_config, **settings):
       
     if config.registry.settings['pyphotos_debug_mode']:
         #add debug views:
+        log.debug("adding debug login view")
         from .views import debug_login
-        config.add_route('debug_login', '/login/debug')
+        config.add_route('debug_login', '/login/debug/{email}')
         config.add_view(debug_login, route_name='debug_login')
  
  

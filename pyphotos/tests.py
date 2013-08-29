@@ -37,8 +37,8 @@ class ViewTests(unittest.TestCase):
     def setUp(self):
         self.config = testing.setUp()
         
-        engine = create_engine('sqlite:///', echo=True)
-        #engine = create_engine('sqlite:///')
+        #engine = create_engine('sqlite:///', echo=True)
+        engine = create_engine('sqlite:///')
         #models.Base.metadata.drop_all(engine)
         models.Base.metadata.create_all(engine)
         models.DBSession.configure(bind=engine)
@@ -84,7 +84,7 @@ class ViewTests(unittest.TestCase):
         testing.tearDown()
     
 
-    def test_my_view_anonymous(self):
+    def test_my_view(self):
         
         self.request.user = None
         resp = views.my_view(self.request)
@@ -93,17 +93,6 @@ class ViewTests(unittest.TestCase):
         
         self.assertIn('holidays', titles )
         self.assertNotIn('privatealbum', titles)
-        
-        self.assertEqual(resp['myalbums'], [])
-
-        
-    def test_my_view_logged(self):
-        
-        self.request.user = models.DBSession.query(User).filter(User.email == "other@localhost").one()
-        resp = views.my_view(self.request)
-        mytitles = [a.name for a in resp['myalbums']]
-        self.assertIn('privatealbum', mytitles)
-
 
     
     def test_newalbum(self):
@@ -134,8 +123,35 @@ class FunctionalTests(unittest.TestCase):
         #app = main({})
         import pyramid.paster
         app = pyramid.paster.get_app('testing.ini')
-        #from webtest import TestApp
-        #self.testapp = TestApp(app)
+        from webtest import TestApp
+        self.testapp = TestApp(app)
+        
+        with transaction.manager:        
+            album = Album()
+            album.name="holidays"
+        
+            rootuser = User()
+            rootuser.username = "root"
+            rootuser.email = "root@localhost"
+            models.DBSession.add(rootuser)
+            transaction.commit()
+            
+            otheruser = User()
+            otheruser.username ="other"
+            otheruser.email = "otherlocalhost"
+            models.DBSession.add(otheruser)
+            transaction.commit()
+            
+            album.owner=rootuser
+            album.public=True
+            models.DBSession.add(album)
+            
+            album = Album()
+            album.name = "privatealbum"
+            album.owner = otheruser
+            album.public = False
+            models.DBSession.add(album)
+        
     
     
     def tearDown(self):
@@ -145,10 +161,19 @@ class FunctionalTests(unittest.TestCase):
     def test_initial_database_setup(self):
         users = models.DBSession.query(models.User).all()
         
-        self.assertEqual(len(users),1)
+        self.assertEqual(len(users),3)
         
         
-    #def test_my_view_anonymous(self):
-       #resp = self.testapp.get("/", status=200)
-       #self.assertTrue(False)
+    def test_my_view_anonymous(self):
+       resp = self.testapp.get("/", status=200)
+       log.debug(str(resp))
+       
+       self.assertIn('holidays', resp)
+       self.assertNotIn('privatealbum', resp)
+    
+    def test_my_view_auth(self):
+        resp = self.testapp.get("/login/debug/otherlocalhost", status=302)
+        resp = self.testapp.get("/")
+        self.assertIn('privatealbum', resp)
+       
     
