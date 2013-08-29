@@ -53,6 +53,7 @@ class Photo(Base):
     __tablename__ = 'photos'
     id = Column(Integer, primary_key = True)
     idalbum = Column(Integer, ForeignKey('albums.id'))
+    #album: relationship from Album
     filename = Column(Text) # original filename (like DSC_73222.JPG)
     filekey = Column(Text) #S3 key, file path, ...
     storagetype = Column(Text) #type of storage (S3, file system, ...)

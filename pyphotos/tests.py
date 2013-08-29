@@ -45,8 +45,8 @@ class ViewTests(unittest.TestCase):
         self.engine= engine
         
         with transaction.manager:        
-            album = Album()
-            album.name="holidays"
+            holidays = Album()
+            holidays.name="holidays"
         
             rootuser = User()
             rootuser.username = "root"
@@ -60,9 +60,9 @@ class ViewTests(unittest.TestCase):
             models.DBSession.add(otheruser)
             transaction.commit()
             
-            album.owner=rootuser
-            album.public=True
-            models.DBSession.add(album)
+            holidays.owner=rootuser
+            holidays.public=True
+            models.DBSession.add(holidays)
             
             album = Album()
             album.name = "privatealbum"
@@ -70,6 +70,12 @@ class ViewTests(unittest.TestCase):
             album.public = False
             models.DBSession.add(album)
             
+            #add a new photo:
+            photo = Photo()
+            photo.filename = "file001"
+            photo.filekey = "filekey001"
+            photo.album = holidays
+            models.DBSession.add(photo)
        
         
         self.request = testing.DummyRequest()
@@ -109,6 +115,21 @@ class ViewTests(unittest.TestCase):
         #albums = model.Album.m.find({"title": "myawesomealbum"}).all()
         albums = models.DBSession.query(Album).filter(Album.name=="myawesomealbum")
         self.assertEqual(albums.count(), 1)
+        
+    def test_listalbum(self):
+        from .views import listalbum
+        from pyphotos.storage import store
+        
+        self.config.add_route("view_thumbnail", "/thumbnail/{albumname}/{filename}", factory="pyphotos.resources.AlbumFactory")
+        self.request.mystore = store.LocalStore("/tmp/photos")
+        
+        self.request.matchdict["albumname"] = "holidays"
+        rep = listalbum(self.request)
+        
+        ph = rep["photos"][0]
+        self.assertEqual(ph.filename, "file001")
+        
+        
         
 
 class FunctionalTests(unittest.TestCase):
