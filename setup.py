@@ -28,6 +28,7 @@ requires = [
             'zope.sqlalchemy',
             'transaction',
             'SQLAlchemy',
+            'webtest',
            ]
 
 setup(name='pyphotos',

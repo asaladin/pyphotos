@@ -304,7 +304,7 @@ def forbidden_view(request):
     return Response("<html><body>You are not allowed to view this ressource. <a href='/'>back home</a></body></html>")
  
 
-
 def debug_login(request):
-    headers = remember(request, 'root@localhost')
+    email = request.matchdict["email"]
+    headers = remember(request, email)
     return HTTPFound(location="/", headers=headers)    

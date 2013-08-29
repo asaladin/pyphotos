@@ -44,10 +44,11 @@ def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
 
-    #set up sqlalchemy:
-    engine = engine_from_config(settings, 'sqlalchemy.')
-    DBSession.configure(bind=engine)
-    Base.metadata.bind = engine
+    if settings["sqlalchemy.url"]!="testing":
+        #set up sqlalchemy:
+        engine = engine_from_config(settings, 'sqlalchemy.')
+        DBSession.configure(bind=engine)
+        Base.metadata.bind = engine
 
     #pyramid configurator (sessions, routes, ...)
     config = Configurator(root_factory=Root, settings=settings)
@@ -96,8 +97,9 @@ def main(global_config, **settings):
       
     if config.registry.settings['pyphotos_debug_mode']:
         #add debug views:
+        log.debug("adding debug login view")
         from .views import debug_login
-        config.add_route('debug_login', '/login/debug')
+        config.add_route('debug_login', '/login/debug/{email}')
         config.add_view(debug_login, route_name='debug_login')
  
  
