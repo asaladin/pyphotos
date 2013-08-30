@@ -118,7 +118,7 @@ def newalbum(request):
 
 
 @view_config(route_name="view_thumbnail")
-def thumbnail(request):
+def view_thumbnail(request):
     
     albumname = request.matchdict['albumname']
     filename = request.matchdict['filename']
@@ -248,7 +248,7 @@ def fullsize_view(request):
     album = DBSession.query(Album).filter(Album.name==albumname).one()
     photo = DBSession.query(Photo).filter(Photo.album==album).one()
 
-    url = request.mystore.fullsize_url(albumname, filename)
+    url = request.mystore.fullsize_url("%s/%s"%(albumname, filename))
     return {'url': url}
 
     
