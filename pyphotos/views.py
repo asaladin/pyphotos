@@ -90,8 +90,8 @@ def listalbum(request):
     
     for p in photos:
         p.url = "/not/found/yet"
-        p.thumbnailpath = request.route_path("view_thumbnail", albumname=albumname, filename=p.filename)
-        p.fullsizeurl = request.mystore.fullsize_url(p.filekey)
+        p.thumbnailpath = request.mystore.view_url(p.thumbkey)
+        p.fullsizeurl = request.mystore.view_url(p.filekey)
         
     return {'albumname': albumname, 'photos': photos, 'username': username, 'owner':owner}
 
@@ -248,7 +248,7 @@ def fullsize_view(request):
     album = DBSession.query(Album).filter(Album.name==albumname).one()
     photo = DBSession.query(Photo).filter(Photo.album==album).one()
 
-    url = request.mystore.fullsize_url("%s/%s"%(albumname, filename))
+    url = request.mystore.view_url("%s/%s"%(albumname, filename))
     return {'url': url}
 
     
