@@ -66,7 +66,7 @@ def main(global_config, **settings):
     config.add_route("index", "/")
     config.add_route("listalbum", "/album/{albumname}/list", factory="pyphotos.resources.AlbumFactory")
     config.add_route("addphotoform", "/album/{albumname}/addphoto", factory="pyphotos.resources.AlbumFactory")
-    config.add_route("view_thumbnail", "/thumbnail/{albumname}/{filename}", factory="pyphotos.resources.AlbumFactory")
+    config.add_route("render_image", "/render_image/{albumname}/{filename}", factory="pyphotos.resources.AlbumFactory")
     config.add_route("newalbum", "/newalbum")
     config.add_route("createticket", "/createticket/{albumname}", factory="pyphotos.resources.AlbumFactory")
     config.add_route("allowview", "/allow/{credential}")

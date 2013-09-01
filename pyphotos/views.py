@@ -117,19 +117,12 @@ def newalbum(request):
 
 
 
-@view_config(route_name="view_thumbnail")
-def view_thumbnail(request):
-    
+@view_config(route_name="render_image")
+def render_image(request):
     albumname = request.matchdict['albumname']
     filename = request.matchdict['filename']
     thumbkey = request.mystore.genkey(albumname, filename, thumbnail = True)
     return Response(request.mystore[thumbkey], content_type="image/jpeg")
-    
-    #old s3 stuff
-    #fid = request.GET['filename']
-    #fid2 = request.db.fs.files.find_one({'filename':fid})['_id']
-    #fich = request.fs.get(fid2)
-    #return Response(fich.read(),content_type="image/jpeg")
 
 
 @view_config(route_name='generate_thumbnail')
@@ -246,7 +239,7 @@ def fullsize_view(request):
     filename = request.matchdict['filename']
     
     album = DBSession.query(Album).filter(Album.name==albumname).one()
-    photo = DBSession.query(Photo).filter(Photo.album==album).one()
+    photo = DBSession.query(Photo).filter(Photo.album==album).filter(Photo.filename==filename).one()
 
     url = request.mystore.view_url("%s/%s"%(albumname, filename))
     return {'url': url}
