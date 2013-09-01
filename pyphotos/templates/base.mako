@@ -10,6 +10,12 @@
       .sidebar-nav {
         padding: 9px 0;
       }
+
+      .photocontainer {
+          margin-bottom: 15px;
+
+       }
+
     </style>
 
 
