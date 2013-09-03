@@ -80,14 +80,6 @@ def listalbum(request):
 
     photos = album.photos
 
-    #def url_for_thumbnail(url):
-        #if "/thumbnail/generate/" in url:
-            ##we need to generate a thumbnail, so we just let the browser call the appropriate view
-            #return url
-        #else:
-            ##let's generate a signed URL for S3
-            #return request.s3.generate_url(3600 , "GET" ,getBucketName(request), url )
-
     
     for p in photos:
         p.url = "/not/found/yet"
@@ -173,17 +165,12 @@ def addphotoform(request):
                 
         im.save(imagefile, 'JPEG')  #save thumbnail in jpeg format into imagefile
         
-        #store the thumbnail into S3:
         imagefile.seek(0)
         
         thumbkey = request.mystore.genkey(albumname, filename, thumbnail = True)
         request.mystore[thumbkey] = imagefile.read()
-        
-        #key = request.bucket.new_key("/thumbnails/%s/%s"%(albumname,filename))
-        #key.set_contents_from_file(imagefile)
 
         #store the new photo in the database
-        
         album = DBSession.query(Album).filter(Album.name==albumname).one()
         
         photo = Photo()
