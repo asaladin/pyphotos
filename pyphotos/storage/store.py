@@ -33,7 +33,7 @@ class LocalStore(Store):
     @staticmethod
     def genkey(album, filename, thumbnail=False):
         if thumbnail:
-           key = os.path.join(album, "thumbnail",  filename)
+           key = os.path.join("thumbnail", album, filename)
         else:
            key = os.path.join(album, filename)
         return key
@@ -62,7 +62,7 @@ class S3Store(Store):
     @staticmethod
     def genkey(album, filename, thumbnail=False):
         if thumbnail:
-            key = '%s/thumbnail/%s'%(album, filename)
+            key = 'thumbnail/%s/%s'%(album, filename)
         else:
             key = '%s/%s'%(album, filename)
         return key
