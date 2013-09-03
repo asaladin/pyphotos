@@ -232,7 +232,7 @@ def fullsize_view(request):
     album = DBSession.query(Album).filter(Album.name==albumname).one()
     photo = DBSession.query(Photo).filter(Photo.album==album).filter(Photo.filename==filename).one()
 
-    url = request.mystore.view_url("%s/%s"%(albumname, filename))
+    url = request.mystore.view_url(photo.filekey)
     return {'url': url}
 
     
