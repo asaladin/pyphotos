@@ -7,6 +7,7 @@ from io import BytesIO
 from boto.s3.key import Key
 from PIL import Image
 import transaction
+import os.path
 
 
 import logging
@@ -23,11 +24,13 @@ def foo():
 @celery.task
 def generate_thumbnail(albumname, filename):
     log.debug("generating thumbnail for %s/%s"%(albumname, filename))
+    
+    #get the Photo object:
+    album = DBSession.query(Album).filter(Album.name==albumname).one()
+    photo = DBSession.query(Photo).filter(Photo.album==album).filter(Photo.filename==filename).one()
         
     #retrieve the original image:
-    key = celery.mystore.genkey(albumname, filename)
-    f = celery.mystore[key]    
-    
+    f = celery.mystore[photo.filekey]    
     
     #create the thumbnail
     size = 300, 300
@@ -43,15 +46,12 @@ def generate_thumbnail(albumname, filename):
     im.save(imagefile, 'JPEG')
     imagefile.seek(0)  # put the file cursor back to the origin
     
-    #save the thumbnail into the storage system:    
-    key = celery.mystore.genkey(albumname, filename, thumbnail=True)
+    #save the thumbnail into the storage system:
+    dirname = os.path.dirname(photo.filekey)
+    key = celery.mystore.genkey(dirname, filename, thumbnail=True)
     celery.mystore[key] = imagefile.read()
     
     #update photo url:
-
-    album = DBSession.query(Album).filter(Album.name==albumname).one()
-    photo = DBSession.query(Photo).filter(Photo.album==album).filter(Photo.filename==filename).one()
-    
     photo.thumbkey = key
     DBSession.add(photo)
     

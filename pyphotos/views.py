@@ -25,6 +25,7 @@ from io import BytesIO
 
 import tasks
 import os
+import os.path
 
 import logging
 log = logging.getLogger(__name__)
@@ -268,7 +269,7 @@ def import_s3(request):
             listdir = request.mystore.list(dirname)
             for f in listdir:
                 photo = Photo()
-                filename = f.name.strip(albumname+'/')
+                filename = os.path.basename(f.name)
                 
                 photo.filename = filename
                 photo.albumname = albumname
