@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 
 import boto
 
-from pyphotos.views import forbidden_view
+#from pyphotos.views import forbidden_view
 from pyphotos.storage import store 
 
 def ingroup(userid, request):
@@ -78,7 +78,7 @@ def main(global_config, **settings):
                     
     config.add_static_view('static', 'pyphotos:static', cache_max_age=3600)
     
-    config.add_forbidden_view(forbidden_view)
+    #config.add_forbidden_view(forbidden_view)
     
     #add a 'user' attribute accessed by 'request.user' for each view and template:
     config.add_request_method('pyphotos.lib.get_user', name='user', property=True, reify=True)
