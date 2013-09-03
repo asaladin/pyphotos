@@ -90,7 +90,10 @@ def listalbum(request):
     
     for p in photos:
         p.url = "/not/found/yet"
-        p.thumbnailpath = request.mystore.view_url(p.thumbkey)
+        if '/generate/' in p.thumbkey:
+            p.thumbnailpath = request.route_path('generate_thumbnail', albumname=albumname, filename=p.filename)
+        else:
+            p.thumbnailpath = request.mystore.view_url(p.thumbkey)
         p.fullsizeurl = request.mystore.view_url(p.filekey)
         
     return {'albumname': albumname, 'photos': photos, 'username': username, 'owner':owner}
@@ -291,10 +294,10 @@ def admin(request):
     
     
     
-def forbidden_view(request):
-    if request.user is None:
-        return Response("You must <a href='/login'>log in</a>")
-    return Response("<html><body>You are not allowed to view this ressource. <a href='/'>back home</a></body></html>")
+#def forbidden_view(request):
+    #if request.user is None:
+        #return Response("You must <a href='/login'>log in</a>")
+    #return Response("<html><body>You are not allowed to view this ressource. <a href='/'>back home</a></body></html>")
  
 
 def debug_login(request):

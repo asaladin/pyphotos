@@ -1,9 +1,17 @@
 from pyphotos.mycelery import celery
-from pyphotos.models import Photo, User, Album
+from pyphotos.models import DBSession, Photo, User, Album
+
+from sqlalchemy import engine_from_config
 
 from io import BytesIO
 from boto.s3.key import Key
 from PIL import Image
+import transaction
+
+
+import logging
+log = logging.getLogger(__name__)
+
 
 @celery.task
 def foo():
@@ -14,15 +22,12 @@ def foo():
         
 @celery.task
 def generate_thumbnail(albumname, filename):
-    print "generating thumbnail for %s/%s"%(albumname, filename)
+    log.debug("generating thumbnail for %s/%s"%(albumname, filename))
+        
+    #retrieve the original image:
+    key = celery.mystore.genkey(albumname, filename)
+    f = celery.mystore[key]    
     
-    #get the S3 key:
-    key = Key(celery.bucket)
-    imagepath = '%s/%s'%(albumname, filename)
-    thumbnailpath = 'thumbnails/'+imagepath
-    key.key=imagepath  #I know, boto...
-    
-    f = key.get_contents_as_string()
     
     #create the thumbnail
     size = 300, 300
@@ -36,15 +41,20 @@ def generate_thumbnail(albumname, filename):
     imagefile.fileno = fileno #hack to make PIL and BytesIO work together...
                 
     im.save(imagefile, 'JPEG')
+    imagefile.seek(0)  # put the file cursor back to the origin
     
-    imagefile.seek(0)
-    
-    key = celery.bucket.new_key("thumbnails/%s/%s"%(albumname,filename))
-    key.set_contents_from_file(imagefile)
+    #save the thumbnail into the storage system:    
+    key = celery.mystore.genkey(albumname, filename, thumbnail=True)
+    celery.mystore[key] = imagefile.read()
     
     #update photo url:
-    photo = Photo.m.find({'albumname':albumname, 'filename':filename}).one()
-    photo.thumbnailpath = thumbnailpath
-    photo.m.save()
+
+    album = DBSession.query(Album).filter(Album.name==albumname).one()
+    photo = DBSession.query(Photo).filter(Photo.album==album).filter(Photo.filename==filename).one()
     
-    print "thumbnail generation done for %s/%s"%(albumname, filename)
+    photo.thumbkey = key
+    DBSession.add(photo)
+    
+    transaction.commit()
+    log.debug('the key is: %s'%key)
+    log.debug("thumbnail generation done for %s/%s"%(albumname, filename))
