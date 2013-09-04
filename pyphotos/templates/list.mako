@@ -1,12 +1,17 @@
 <%inherit file="base.mako" />
 
 
+
+
 <div class='hero-unit'>
 <h2>album: ${albumname}</h2>
 </div>
 
-<a href="addphoto">Ajouter une photo</a>
+%if owner.email == username:
+<a href="addphoto">Add a new photo</a>
 <a href="/createticket/${albumname}">Inviter quelqu'un</a>
+%endif
+
 
 
 <% 
@@ -21,11 +26,14 @@ def grouper(n, iterable, fillvalue=None):
 %for group_photo in grouper(2 , photos):
 <div class="row-fluid">
     %for photo in group_photo:
-    <div class="span4">
-       <a href="${request.route_url('fullsize', albumname=albumname,  filename=photo['filename'])}"> 
-          <img src="/thumbnail?filename=${photo['filename']}" />  ${photo['filename']} 
-       </a> 
-    </div><!--/span-->
+        %if photo is not None:
+        <div class="span4 photocontainer">
+           <a href="${request.route_url('fullsize', albumname=photo.album.name, filename=photo.filename)}"> 
+               <img src="${photo.thumbnailpath}" /><br/>
+            ${photo.filename} 
+           </a> 
+        </div><!--/span4-->
+        %endif
     %endfor
 
 </div><!--/row-->

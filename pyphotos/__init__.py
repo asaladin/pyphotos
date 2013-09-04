@@ -1,3 +1,4 @@
+from sqlalchemy import engine_from_config
 from pyramid.config import Configurator
 from pyphotos.resources import Root
 from pyramid.events import subscriber
@@ -8,113 +9,120 @@ from pyramid.authorization import ACLAuthorizationPolicy
 
 from  pyramid.security import authenticated_userid
 
+from pyramid.httpexceptions import HTTPFound
 
 import pyramid_beaker
 import random
 
 from gridfs import GridFS
-import pymongo
 import hashlib
 import lib
+import transaction
+
+import logging
+log = logging.getLogger(__name__)
+
 
 import boto
 
+#from pyphotos.views import forbidden_view
+from pyphotos.storage import store 
 
 def ingroup(userid, request):
     return [userid]
+
+
+from .models import (
+    DBSession,
+    Base,
+    User,
+    )
 
 
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
+
+    if settings["sqlalchemy.url"]!="testing":
+        #set up sqlalchemy:
+        engine = engine_from_config(settings, 'sqlalchemy.')
+        DBSession.configure(bind=engine)
+        Base.metadata.bind = engine
+
+    #pyramid configurator (sessions, routes, ...)
     config = Configurator(root_factory=Root, settings=settings)
-    config.include(pyramid_beaker)
-    
-    authentication_policy = AuthTktAuthenticationPolicy('seekrit', callback=ingroup)
-    authorization_policy = ACLAuthorizationPolicy()
-    
-    config.set_authentication_policy(authentication_policy)
-    config.set_authorization_policy(authorization_policy)
+    config.include("pyramid_persona") 
     
     
-    
-    db_uri = settings['db_uri']
-    conn = pymongo.Connection(db_uri)
-    db = conn[settings['db_name']]
-    config.registry.settings['db_conn'] = conn
-    
-    s3 = boto.connect_s3()
-    config.registry.settings['s3'] = s3
-    config.registry.settings['bucket'] = s3.get_bucket("asphotos")
-    
-    
-    config.add_subscriber(add_mongo_db, NewRequest)
-    config.add_subscriber(before_render, BeforeRender)
-    
-    #add root account if none present:
-    if db.users.find({'admin':True}).count() == 0:
-        pwd = hashlib.sha1('%s'%random.randint(1,1e99)).hexdigest()
+    mystore = store.storefactory(settings)
         
-        db.users.insert({'login':'root', 'pwd':pwd, 'admin':True })
-        print 'created root account with password ', pwd
+    config.registry.settings['mystore'] = mystore 
     
-    
-    
+    config.add_subscriber(add_store, NewRequest)
+    config.add_subscriber(check_for_new_user, NewRequest)
+
     
     config.add_route("index", "/")
-    #config.add_view('pyphotos.views.my_view',
-                    #renderer='pyphotos:templates/index.mako', route_name="index")
-                    
-                    
     config.add_route("listalbum", "/album/{albumname}/list", factory="pyphotos.resources.AlbumFactory")
-    #config.add_view("pyphotos.views.listalbum", route_name="listalbum", renderer="pyphotos:templates/list.mako", permission='view' )
-    
-    config.add_route("addphotoform", "/album/{albumname}/addphoto")
-    #config.add_view("pyphotos.views.addphotoform", route_name="addphotoform", renderer="pyphotos:templates/addphoto.mako")
-    
-    config.add_route("view_thumbnail", "/thumbnail")
-    #config.add_view("pyphotos.views.thumbnail", route_name="view_thumbnail")
-    
-    config.add_route("login", "/login")
-    #config.add_view("pyphotos.views.login", route_name="login", renderer="pyphotos:templates/login.mako")
-    
-    config.add_route("logout", "/logout")
-    #config.add_view("pyphotos.views.logout", route_name="logout")
-    
-    
-    config.add_route("velruse_endpoint", "/velruse_endpoint")
-    #config.add_view("pyphotos.views.endpoint", route_name="velruse_endpoint")
-   
+    config.add_route("addphotoform", "/album/{albumname}/addphoto", factory="pyphotos.resources.AlbumFactory")
+    config.add_route("render_image", "/render_image/{albumname}/{filename}", factory="pyphotos.resources.AlbumFactory")
     config.add_route("newalbum", "/newalbum")
-    #config.add_view("pyphotos.views.newalbum", route_name="newalbum", renderer="pyphotos:templates/newalbum.mako", permission="create") 
-    
     config.add_route("createticket", "/createticket/{albumname}", factory="pyphotos.resources.AlbumFactory")
-    
     config.add_route("allowview", "/allow/{credential}")
     config.add_route('myalbums', '/myalbums')
-    config.add_route('fullsize', '/fs/{albumname}/{filename}')
-    
+    config.add_route('fullsize', '/fullsize/{albumname}/{filename}', factory="pyphotos.resources.AlbumFactory")
+    config.add_route('import_s3', '/import/s3')
+    config.add_route('generate_thumbnail', '/thumbnail/generate/{albumname}/{filename}')
+    config.add_route('admin', '/admin')
                     
     config.add_static_view('static', 'pyphotos:static', cache_max_age=3600)
     
+    #config.add_forbidden_view(forbidden_view)
+    
+    #add a 'user' attribute accessed by 'request.user' for each view and template:
+    config.add_request_method('pyphotos.lib.get_user', name='user', property=True, reify=True)
+    
     config.scan()
-    
-    
+
+    #add a local user:
+    admin_email = config.registry.settings['admin_email']
+    nuser = DBSession.query(User).filter(User.email==admin_email).count()
+    if nuser==0:
+        user = User()
+        user.email = admin_email
+        user.username = config.registry.settings['admin_name']
+        DBSession.add(user)
+        transaction.commit()
+        log.debug("added admin user")
+
+      
+    if settings['pyphotos_debug_mode']:
+        #add debug views:
+        log.debug("adding debug login view")
+        from .views import debug_login
+        config.add_route('debug_login', '/login/debug/{email}')
+        config.add_view(debug_login, route_name='debug_login')
+ 
+ 
     return config.make_wsgi_app()
 
-def add_mongo_db(event):
+from views import NewUser  
+    
+def add_store(event):
     settings = event.request.registry.settings
-    db = settings['db_conn'][settings['db_name']]
-    event.request.db = db
-    event.request.fs = GridFS(db)
-    
-    event.request.s3 = settings['s3']
-    event.request.bucket = settings['bucket']
-    
-    
 
-def before_render(event):
-    event["username"] = authenticated_userid(event['request'])
-    event["myalbums"] = lib.myalbums(event['request'])
+    event.request.mystore = settings['mystore']
+
+
+def check_for_new_user(event):
+    userid = authenticated_userid(event.request)
+    if userid is None: return
+
+    users = DBSession.query(User).filter(User.email==userid)
+    log.debug("number of users with this email: %i"%users.count())
+    if users.count() == 0:  #only redirect to new_user if the user is not in the database
+        #don't reraise the NewUser exception if the new_user view is going to be visited
+        #if event.request.url != event.request.route_url('new_user'):
+            raise NewUser()
     

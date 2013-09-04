@@ -1,9 +1,21 @@
 from  pyramid.security import authenticated_userid
+from .models import DBSession, User, Album
 
+        
 
-def myalbums(request):
-    username = authenticated_userid(request)
-    albums = request.db.albums.find({'owner':username})
+def get_user(request):
+    email = authenticated_userid(request)
+    try: 
+        user = DBSession.query(User).filter(User.email==email).one()
+        return user
+    except:
+        return None
     
-    return list(albums)
     
+def get_username(request):
+    userid = authenticated_userid(request)
+    try:
+       user = User.m.find({"browserid": userid}).one()
+    except:
+        return ''
+    return user.user_name

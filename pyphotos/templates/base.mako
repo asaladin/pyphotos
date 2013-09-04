@@ -10,6 +10,12 @@
       .sidebar-nav {
         padding: 9px 0;
       }
+
+      .photocontainer {
+          margin-bottom: 15px;
+
+       }
+
     </style>
 
 
@@ -38,10 +44,10 @@
             ##  <li><a href="#about">About</a></li>
             ##  <li><a href="#contact">Contact</a></li>
             </ul>
-            %if username is not None:
-                <p class="navbar-text pull-right">Logged in as <a href="#">${username}</a> | <a href='/logout'> logout </a> </p>
+            %if request.user is not None:
+                <p class="navbar-text pull-right">Logged in as <a href="#">${request.user.username}</a> | <a href='/logout' id='signout'> logout </a> </p>
             %else: 
-               <p class="navbar-text pull-right"><a href="/login">Log in </a></p> 
+               <p class="navbar-text pull-right"><a id='signin' href="#" >Log in </a></p> 
             %endif    
           </div><!--/.nav-collapse -->
         </div>
@@ -66,11 +72,15 @@
                  <ul class="nav nav-list">
                      <li class="nav-header">Sidebar</li>
     <!--             <li class="active"><a href="#">Link</a></li>-->
+                    %if request.user is not None:
                      <li><a href='/newalbum'>Create an album</a></li>
+                    %endif
                      <li class="nav-header">Your albums</li>
-                     %for a in myalbums[:5]:
-                         <li><a href="/album/${a['title']}/list">${a['title']}</a></li>
-                     %endfor
+                     %if request.user is not None:
+                         %for a in request.user.albums[:5]:
+                             <li><a href="/album/${a.name}/list">${a.name}</a></li>
+                         %endfor
+                     %endif
                  </ul>
              </div><!--/.well -->
          </div><!--/span-->
@@ -78,8 +88,12 @@
 
 
          <div class='span9'>
-             ${next.body()}
+           ${next.body()}
          </div>
+
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script src="https://login.persona.org/include.js" type="text/javascript"></script>
+<script type="text/javascript">${request.persona_js}</script>
 
 
 

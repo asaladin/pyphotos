@@ -1,2 +1,4 @@
 *~
 *.pyc
+pyphotos.egg-info/*
+pyphotos.sqlite

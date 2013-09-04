@@ -1,31 +1,37 @@
 from pyramid.security import Everyone, Authenticated
-from pyramid.security import Allow, Deny
+from pyramid.security import Allow, Deny, ALL_PERMISSIONS
 from pyramid.security import authenticated_userid
 
+from .models import DBSession, Album, User
 
 class Root(object):
     def __init__(self, request):
         self.request = request
         self.__acl__ = [
+                         (Allow, 'group:admin', ALL_PERMISSIONS),
+                         (Allow, request.registry.settings['admin_email'], ALL_PERMISSIONS),
                          (Allow, Authenticated, 'create'),
-                         (Allow, 'toto', 'view'),
                        ]
     
 class AlbumFactory(object):
     def __init__(self, request):
         self.request = request
-        self.__acl__ = [(Allow, Authenticated, 'create'),]
-        
-        print request.session
-        
-        
-        db = request.db
+        self.__acl__ = [
+                         (Allow, 'group:admin', ALL_PERMISSIONS) ,
+                         (Allow, Authenticated, 'create'),
+                       ]
+
         albumname = request.matchdict['albumname']
         
-        album = db.albums.find_one({'title': albumname})
-        owner = album['owner']
+        album = DBSession.query(Album).filter(Album.name==albumname).one()
+                
+        owner = album.owner.email
+        
         self.__acl__.append( (Allow, owner, 'createticket'), )
         self.__acl__.append( (Allow, owner, 'view'), )
+        self.__acl__.append( (Allow, owner, 'append'), ) #add new photo
+        if album.public is True:
+            self.__acl__.append( (Allow, Everyone, 'view') )
         
         if 'tickets' in request.session:
             tickets = request.session['tickets']
