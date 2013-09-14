@@ -29,7 +29,8 @@ class Album(Base):
     ownerid = Column(Integer, ForeignKey('users.id') )
     #from relationship in User:
     #owner: User object
-    creationdate = Column(DateTime)    
+    creationdate = Column(DateTime)
+    coverimage = Column(Integer)
 
     photos = relationship("Photo", backref="album")
     
