@@ -65,6 +65,23 @@ def new_user_exception(request):
 @view_config(renderer='pyphotos:templates/index.mako', route_name="index")
 def my_view(request):
     albums = DBSession.query(Album).filter(Album.public == True).all()
+    
+    for a in albums:
+        if a.coverimage is not None:
+            photo = DBSession.query(Photo).filter(Photo.id == a.coverimage).one()
+            
+        else:
+            photo = a.photos[0] #TODO: do something when album is empty
+            
+    
+        if '/generate/' in photo.thumbkey:
+            photo.thumbnailpath = request.route_path('generate_thumbnail', albumname=a.name, filename=photo.filename)
+        else:
+            photo.thumbnailpath = request.mystore.view_url(photo.thumbkey)
+        
+        photo.coucou = "beuf"
+        a.cover = photo
+    
     return {'project':'pyphotos', 'albums': albums}
 
 
