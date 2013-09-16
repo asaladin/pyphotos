@@ -71,15 +71,22 @@ def my_view(request):
             photo = DBSession.query(Photo).filter(Photo.id == a.coverimage).one()
             
         else:
-            photo = a.photos[0] #TODO: do something when album is empty
-            
-    
-        if '/generate/' in photo.thumbkey:
-            photo.thumbnailpath = request.route_path('generate_thumbnail', albumname=a.name, filename=photo.filename)
+            if len(a.photos) > 0:
+                photo = a.photos[0] #take the album first picture
+            else:
+                photo = None  #there is no photo here
+                
+        if photo is not None:
+            if '/generate/' in photo.thumbkey:
+                photo.thumbnailpath = request.route_path('generate_thumbnail', albumname=a.name, filename=photo.filename)
+            else:
+                photo.thumbnailpath = request.mystore.view_url(photo.thumbkey)
         else:
-            photo.thumbnailpath = request.mystore.view_url(photo.thumbkey)
+            #the album is empty
+            photo = Photo()
+            photo.thumbnailpath = request.static_path('pyphotos:static/notgenerated.png')
         
-        photo.coucou = "beuf"
+        
         a.cover = photo
     
     return {'project':'pyphotos', 'albums': albums}
