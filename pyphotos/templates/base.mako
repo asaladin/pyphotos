@@ -16,6 +16,20 @@
 
        }
 
+     .albumcontainer {
+
+         margin-bottom:30px;
+         margin-right: 40px;
+         float: left;
+      }
+
+     .albumcontainer:hover {
+        background-color: #ccc;
+        
+     }
+
+
+
     </style>
 
 
