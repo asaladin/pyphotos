@@ -18,9 +18,10 @@
 
      .albumcontainer {
 
+         display: inline-block;
          margin-bottom:30px;
          margin-right: 40px;
-         float: left;
+         width: 250px;
       }
 
      .albumcontainer:hover {
