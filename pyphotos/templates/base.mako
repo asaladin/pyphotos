@@ -13,6 +13,7 @@
 
       .photocontainer {
           margin-bottom: 15px;
+          display: inline-block;
 
        }
 

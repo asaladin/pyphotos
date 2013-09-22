@@ -12,33 +12,16 @@
 <a href="/createticket/${albumname}">Inviter quelqu'un</a>
 %endif
 
+%for photo in photos: 
 
+    <div class="albumcontainer">
+        <a href="${request.route_url('fullsize', albumname=photo.album.name, filename=photo.filename)}"> 
+            <img src="${photo.thumbnailpath}" /><br/>
+         ${photo.filename} 
+        </a> 
+    </div><!--/span4-->
 
-<% 
-from itertools import izip_longest
-def grouper(n, iterable, fillvalue=None):
-    "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
-    args = [iter(iterable)] * n
-    return izip_longest(fillvalue=fillvalue, *args)
-%>
-
-
-%for group_photo in grouper(2 , photos):
-<div class="row-fluid">
-    %for photo in group_photo:
-        %if photo is not None:
-        <div class="span4 photocontainer">
-           <a href="${request.route_url('fullsize', albumname=photo.album.name, filename=photo.filename)}"> 
-               <img src="${photo.thumbnailpath}" /><br/>
-            ${photo.filename} 
-           </a> 
-        </div><!--/span4-->
-        %endif
-    %endfor
-
-</div><!--/row-->
 %endfor
-
 
 
 

@@ -165,6 +165,8 @@ def addphotoform(request):
     
     albumname = request.matchdict['albumname']
     
+    print request.POST
+    
     if request.method == "POST":
         filename = request.POST['jpg'].filename
         inputfile = request.POST['jpg'].file
