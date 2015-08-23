@@ -19,13 +19,22 @@ class LocalStore(Store):
     def __init__(self, basedir):
        self.basedir = basedir
     
+    def _path(self, key):
+        filepath = os.path.join(self.basedir, key)
+        path = os.path.realpath(filepath)
+        
+        assert(".." not in path)
+        if not path.startswith(self.basedir):
+            raise RuntimeError("Error: file path is not a subpath of basedir")
+        return path
+    
     def __getitem__(self, key):
-       filepath = os.path.join(self.basedir, key)
+       filepath = self._path(key)
        f = open(filepath, 'rb')
        return f.read() 
 
     def __setitem__(self, key, content): 
-       filepath = os.path.join(self.basedir, key)
+       filepath = self._path(key)
        f = open(filepath, 'wb')
        f.write(content)
        f.close() 
