@@ -63,7 +63,7 @@ def new_user_exception(request):
 
 # main page
 @view_config(renderer='pyphotos:templates/index.mako', route_name="index")
-def my_view(request):
+def main_view(request):
     albums = DBSession.query(Album).filter(Album.public == True).all()
     
     for a in albums:
@@ -104,8 +104,10 @@ def listalbum(request):
 
     photos = album.photos
 
-    
+    log.debug("photo album requested: %s, %i photos"%(albumname, len(photos)))
     for p in photos:
+        log.debug(str(dir(p)))
+        log.debug(type(p.thumbkey))
         p.url = "/not/found/yet"
         if '/generate/' in p.thumbkey:
             p.thumbnailpath = request.route_path('generate_thumbnail', albumname=albumname, filename=p.filename)
