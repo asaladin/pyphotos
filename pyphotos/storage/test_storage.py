@@ -22,4 +22,10 @@ class TestLocalStorage(TestCase):
     def testCreateFile_cannot_escape_directory(self):
         "one should not be able to move outside the base directory of localstore"
         self.assertRaises(Exception, self.localstore.__setitem__, '../testfile',  "testcontent")
-        
+
+    def testCreateFile_create_path(self):
+        "creating a file also creates the path leading to the file"
+
+        #this should not raise:
+        self.localstore['foo/bar/testfile'] = "testcontent"
+        self.assertTrue(self.localstore['foo/bar/testfile']=="testcontent")

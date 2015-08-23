@@ -13,6 +13,7 @@ class Store(object):
        raise NotImplemented
 
 
+import os
 import os.path
 
 class LocalStore(Store):
@@ -35,6 +36,9 @@ class LocalStore(Store):
 
     def __setitem__(self, key, content): 
        filepath = self._path(key)
+       basedir = os.path.split(filepath)[0]
+       if not os.path.exists(basedir):
+           os.makedirs(basedir)  #recursive
        f = open(filepath, 'wb')
        f.write(content)
        f.close() 
