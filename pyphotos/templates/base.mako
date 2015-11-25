@@ -27,7 +27,7 @@
 
      .albumcontainer:hover {
         background-color: #ccc;
-        
+
      }
 
 
@@ -36,6 +36,7 @@
 
 
 
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 <link href="/static/bootstrap.css" rel="stylesheet">
 <script src="static/bootstrap.js"></script>
 </head>
@@ -62,9 +63,9 @@
             </ul>
             %if request.user is not None:
                 <p class="navbar-text pull-right">Logged in as <a href="#">${request.user.username}</a> | <a href='/logout' id='signout'> logout </a> </p>
-            %else: 
-               <p class="navbar-text pull-right"><a id='signin' href="#" >Log in </a></p> 
-            %endif    
+            %else:
+               <p class="navbar-text pull-right"><a id='signin' href="#" >Log in </a></p>
+            %endif
           </div><!--/.nav-collapse -->
         </div>
       </div>
@@ -74,7 +75,7 @@
 
 <div class="container-fluid">
 
-     <div class="flash"> 
+     <div class="flash">
         <% flash = request.session.pop_flash()   %>
         %for message in flash:
              ${message} <br />
@@ -106,10 +107,6 @@
          <div class='span9'>
            ${next.body()}
          </div>
-
-<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-<script src="https://login.persona.org/include.js" type="text/javascript"></script>
-<script type="text/javascript">${request.persona_js}</script>
 
 
 
