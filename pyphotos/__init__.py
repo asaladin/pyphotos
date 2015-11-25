@@ -14,7 +14,6 @@ from pyramid.httpexceptions import HTTPFound
 import pyramid_beaker
 import random
 
-from gridfs import GridFS
 import hashlib
 import lib
 import transaction
@@ -26,7 +25,7 @@ log = logging.getLogger(__name__)
 import boto
 
 #from pyphotos.views import forbidden_view
-from pyphotos.storage import store 
+from pyphotos.storage import store
 
 def ingroup(userid, request):
     return [userid]
@@ -52,17 +51,14 @@ def main(global_config, **settings):
 
     #pyramid configurator (sessions, routes, ...)
     config = Configurator(root_factory=Root, settings=settings)
-    config.include("pyramid_persona") 
-    
-    
     mystore = store.storefactory(settings)
-        
-    config.registry.settings['mystore'] = mystore 
-    
+
+    config.registry.settings['mystore'] = mystore
+
     config.add_subscriber(add_store, NewRequest)
     config.add_subscriber(check_for_new_user, NewRequest)
 
-    
+
     config.add_route("index", "/")
     config.add_route("listalbum", "/album/{albumname}/list", factory="pyphotos.resources.AlbumFactory")
     config.add_route("addphotoform", "/album/{albumname}/addphoto", factory="pyphotos.resources.AlbumFactory")
@@ -75,14 +71,14 @@ def main(global_config, **settings):
     config.add_route('import_s3', '/import/s3')
     config.add_route('generate_thumbnail', '/thumbnail/generate/{albumname}/{filename}')
     config.add_route('admin', '/admin')
-                    
+
     config.add_static_view('static', 'pyphotos:static', cache_max_age=3600)
-    
+
     #config.add_forbidden_view(forbidden_view)
-    
+
     #add a 'user' attribute accessed by 'request.user' for each view and template:
     config.add_request_method('pyphotos.lib.get_user', name='user', property=True, reify=True)
-    
+
     config.scan()
 
     #add a local user:
@@ -96,19 +92,19 @@ def main(global_config, **settings):
         transaction.commit()
         log.debug("added admin user")
 
-      
+
     if settings['pyphotos_debug_mode']:
         #add debug views:
         log.debug("adding debug login view")
         from .views import debug_login
         config.add_route('debug_login', '/login/debug/{email}')
         config.add_view(debug_login, route_name='debug_login')
- 
- 
+
+
     return config.make_wsgi_app()
 
-from views import NewUser  
-    
+from views import NewUser
+
 def add_store(event):
     settings = event.request.registry.settings
 
@@ -125,4 +121,3 @@ def check_for_new_user(event):
         #don't reraise the NewUser exception if the new_user view is going to be visited
         #if event.request.url != event.request.route_url('new_user'):
             raise NewUser()
-    

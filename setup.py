@@ -7,27 +7,23 @@ README = open(os.path.join(here, 'README.txt')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
-            'pyramid', 
-            'pyramid_debugtoolbar', 
-            'pyramid_persona',
+            'pyramid',
+            'pyramid_debugtoolbar',
             'boto',
-            'pastedeploy', 
+            'pastedeploy',
             'paste',
             'pastescript',
-            'ming',
             'pyramid_beaker',
             'pyramid_tm',
             'velruse', 
             'pillow',
-            'py-bcrypt', 
+            'py-bcrypt',
             'waitress',
-            'pybrowserid',
             'celery',
             'sqlalchemy',
             'pyramid_tm',
             'zope.sqlalchemy',
             'transaction',
-            'SQLAlchemy',
             'webtest',
            ]
 
@@ -59,4 +55,3 @@ setup(name='pyphotos',
       """,
       paster_plugins=['pyramid'],
       )
-
