@@ -12,6 +12,7 @@ from  pyramid.security import authenticated_userid
 from pyramid.httpexceptions import HTTPFound
 
 import pyramid_beaker
+import velruse
 import random
 
 import hashlib
@@ -51,6 +52,8 @@ def main(global_config, **settings):
 
     #pyramid configurator (sessions, routes, ...)
     config = Configurator(root_factory=Root, settings=settings)
+    config.include("velruse.providers.google_oauth2")
+
     mystore = store.storefactory(settings)
 
     config.registry.settings['mystore'] = mystore

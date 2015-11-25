@@ -15,7 +15,7 @@ requires = [
             'pastescript',
             'pyramid_beaker',
             'pyramid_tm',
-            'velruse', 
+            'velruse',
             'pillow',
             'py-bcrypt',
             'waitress',
