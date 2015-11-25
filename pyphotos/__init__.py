@@ -52,6 +52,7 @@ def main(global_config, **settings):
 
     #pyramid configurator (sessions, routes, ...)
     config = Configurator(root_factory=Root, settings=settings)
+    config.include('pyramid_beaker')
     config.include("velruse.providers.google_oauth2")
 
     mystore = store.storefactory(settings)
