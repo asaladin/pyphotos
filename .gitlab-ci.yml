@@ -1,0 +1,10 @@
+test:
+    script:
+        - apt-get update -qy
+        - apt-get install -y python-dev python-pip
+        - pip install -U setuptools
+        - pip install -U cffi
+        - pip install -e .
+        - pip install nose
+        - nosetests
+
